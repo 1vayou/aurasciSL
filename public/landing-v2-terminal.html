@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Lab Terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0a0a0a;color:#e7e5e4;font-family:'Space Grotesk',sans-serif;overflow-x:hidden;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:'JetBrains Mono',monospace}
+:root{--orange:#f97316;--orange-2:#fb923c;--mute:#6b6963;--line:rgba(231,229,228,0.1)}
+
+/* HUD chrome */
+.hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+.hud-corner{position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;color:rgba(231,229,228,0.55);line-height:1.5;text-transform:uppercase}
+.hud-tl{top:24px;left:24px}.hud-tr{top:24px;right:24px;text-align:right}
+.hud-bl{bottom:24px;left:24px}.hud-br{bottom:24px;right:24px;text-align:right}
+.hud-corner b{color:#e7e5e4;font-weight:500}
+.hud-corner .green{color:#a3e635}
+.blink{animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.hud-cross{position:absolute;width:14px;height:14px;border-color:rgba(231,229,228,0.25);border-style:solid;border-width:0}
+.hud-cross.tl{top:14px;left:14px;border-top-width:1px;border-left-width:1px}
+.hud-cross.tr{top:14px;right:14px;border-top-width:1px;border-right-width:1px}
+.hud-cross.bl{bottom:14px;left:14px;border-bottom-width:1px;border-left-width:1px}
+.hud-cross.br{bottom:14px;right:14px;border-bottom-width:1px;border-right-width:1px}
+
+/* Top nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px 64px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase}
+nav .logo{display:flex;gap:14px;align-items:baseline}
+nav .logo b{color:#e7e5e4}
+nav .links{display:flex;gap:32px;color:rgba(231,229,228,0.55)}
+nav .links a:hover{color:var(--orange)}
+nav .num{color:rgba(231,229,228,0.35);margin-right:6px}
+
+/* Main scene */
+.scene{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 140px}
+canvas#dna{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.7}
+.bg-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:80px 80px;mask:radial-gradient(ellipse at center, black 30%, transparent 80%)}
+.glow{position:absolute;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,0.18) 0%,transparent 60%);filter:blur(40px);z-index:0;animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.1);opacity:1}}
+
+/* Headline */
+.label{position:relative;z-index:3;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.3em;color:rgba(249,115,22,0.85);text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.label .dot{width:6px;height:6px;border-radius:50%;background:#a3e635;box-shadow:0 0 10px #a3e635;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+h1{position:relative;z-index:3;margin:0;font-weight:600;font-size:clamp(3.2rem,11vw,9rem);line-height:.92;letter-spacing:-0.04em;text-align:center;color:#fafaf9}
+h1 .grad{background:linear-gradient(135deg,#f97316,#fb923c 50%,#fde68a);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 .glitch{position:relative;display:inline-block}
+h1 .glitch::before,h1 .glitch::after{content:attr(data-text);position:absolute;inset:0;mix-blend-mode:screen;pointer-events:none}
+h1 .glitch::before{color:#f97316;transform:translate(2px,0);animation:gx 4s infinite}
+h1 .glitch::after{color:#22d3ee;transform:translate(-2px,0);animation:gy 4.3s infinite}
+@keyframes gx{0%,90%,100%{clip-path:inset(0 0 0 0);transform:translate(0,0)}92%{transform:translate(3px,-1px);clip-path:inset(40% 0 30% 0)}94%{transform:translate(-2px,1px);clip-path:inset(10% 0 60% 0)}96%{transform:translate(2px,0);clip-path:inset(50% 0 20% 0)}}
+@keyframes gy{0%,90%,100%{clip-path:inset(0 0 0 0);transform:translate(0,0)}93%{transform:translate(-3px,1px);clip-path:inset(30% 0 40% 0)}95%{transform:translate(2px,-1px);clip-path:inset(60% 0 10% 0)}}
+.subline{position:relative;z-index:3;margin:32px 0 0;max-width:560px;text-align:center;font-size:14px;color:rgba(231,229,228,0.6);line-height:1.7;letter-spacing:0.01em}
+.subline .key{color:var(--orange)}
+
+/* CTA cluster */
+.cta-row{position:relative;z-index:3;margin-top:48px;display:flex;gap:14px}
+.btn{padding:14px 24px;border-radius:0;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;border:1px solid;transition:all .25s;display:inline-flex;align-items:center;gap:10px}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:#0a0a0a}
+.btn-primary:hover{background:#fb923c;border-color:#fb923c;box-shadow:0 0 30px rgba(249,115,22,0.5)}
+.btn-ghost{background:transparent;border-color:rgba(231,229,228,0.25);color:#e7e5e4}
+.btn-ghost:hover{border-color:#fff;color:#fff}
+.btn .arrow{transition:transform .25s}
+.btn:hover .arrow{transform:translateX(4px)}
+
+/* Bottom protocol bar */
+.protocol{position:fixed;bottom:0;left:0;right:0;z-index:5;border-top:1px solid var(--line);background:rgba(10,10,10,0.85);backdrop-filter:blur(8px);padding:14px 64px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(231,229,228,0.55)}
+.protocol .cell{display:flex;gap:8px}.protocol .cell b{color:#e7e5e4;font-weight:500}
+.protocol .ticker{color:var(--orange)}
+
+/* Stat strip */
+.stats{position:relative;z-index:3;margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);max-width:920px;width:100%}
+.stat{padding:18px 24px;border-right:1px solid var(--line);font-family:'JetBrains Mono',monospace}
+.stat:last-child{border-right:0}
+.stat .v{font-size:22px;color:var(--orange);font-weight:700;letter-spacing:-0.02em}
+.stat .l{font-size:9px;letter-spacing:0.2em;color:rgba(231,229,228,0.5);text-transform:uppercase;margin-top:4px}
+
+@media (max-width:720px){
+  nav{padding:14px 20px;gap:12px;flex-wrap:wrap}
+  nav .links{display:none}
+  .protocol{padding:12px 20px;gap:8px;flex-wrap:wrap;font-size:9px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(2){border-right:0}
+  .hud-corner{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div class="hud-cross tl"></div><div class="hud-cross tr"></div>
+  <div class="hud-cross bl"></div><div class="hud-cross br"></div>
+  <div class="hud-corner hud-tl">SYS.10 / AURASCI—CORE<br/>TRUST LOOP / V0.94<br/><b>RENDERING INTENT</b></div>
+  <div class="hud-corner hud-tr">STATUS<br/><span class="green">[ ACTIVE ]</span> <span class="blink">●</span><br/>POOL: <b>$420,000 USDC</b></div>
+  <div class="hud-corner hud-bl">PROTOCOL<br/>GEN-SEQ-094<br/><b>TCTAGCATGC</b></div>
+  <div class="hud-corner hud-br">SESSION<br/><b id="clock">00:00:00</b><br/>SCROLL TO INITIATE</div>
+</div>
+
+<nav>
+  <div class="logo"><span><span class="num">01</span><b>AURASCI</b></span></div>
+  <div class="links">
+    <a href="market.html"><span class="num">02</span>MARKET</a>
+    <a href="dashboard-patron.html"><span class="num">03</span>PORTFOLIO</a>
+    <a href="all-pages.html"><span class="num">04</span>INDEX</a>
+    <a><span class="num">05</span>TERMINAL (0)</a>
+  </div>
+</nav>
+
+<section class="scene">
+  <div class="bg-grid"></div>
+  <div class="glow"></div>
+  <canvas id="dna"></canvas>
+
+  <div class="label"><span class="dot"></span>NEURAL ARCHITECTURE / RENDERING TRUST</div>
+
+  <h1>
+    <span class="glitch" data-text="REWRITING">REWRITING</span><br/>
+    <span>THE ARCHITECTURE</span><br/>
+    <span>OF <span class="grad">SCIENCE</span></span>
+  </h1>
+
+  <p class="subline">
+    Milestone-based open science funding infrastructure.<br/>
+    <span class="key">Scientists publish</span> · <span class="key">AI verifies</span> · <span class="key">Patrons fund</span> · <span class="key">Capital flows</span>
+  </p>
+
+  <div class="cta-row">
+    <a class="btn btn-primary" href="onboarding-scientist.html">Enter Lab <span class="arrow">→</span></a>
+    <a class="btn btn-ghost" href="market.html">Browse Market <span class="arrow">→</span></a>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">12</div><div class="l">Active Intents</div></div>
+    <div class="stat"><div class="v">$420K</div><div class="l">In Escrow</div></div>
+    <div class="stat"><div class="v">94/100</div><div class="l">Top AI Score</div></div>
+    <div class="stat"><div class="v">2.5K</div><div class="l">Patrons</div></div>
+  </div>
+</section>
+
+<div class="protocol">
+  <div class="cell">PROTOCOL <b>0.1</b></div>
+  <div class="cell">CURRENT INTENT <b class="ticker">$CELL-01</b></div>
+  <div class="cell">AURA POOL <b>50/100</b></div>
+  <div class="cell">EST. <b>2024 / AURASCI LABS</b></div>
+</div>
+
+<script>
+// Live clock
+function tick(){
+  const d=new Date();
+  const t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  document.getElementById('clock').textContent=t;
+}
+tick();setInterval(tick,1000);
+
+// DNA helix particles
+const c=document.getElementById('dna'),ctx=c.getContext('2d');
+function resize(){c.width=c.offsetWidth*devicePixelRatio;c.height=c.offsetHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio)}
+resize();window.addEventListener('resize',()=>{ctx.setTransform(1,0,0,1,0,0);resize()});
+const bases=['A','T','G','C'];
+let t=0;
+function draw(){
+  const W=c.offsetWidth,H=c.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2;
+  const amp=Math.min(W,H)*0.32;
+  const N=80;
+  for(let i=0;i<N;i++){
+    const p=(i/N)*Math.PI*4 + t*0.0015;
+    const y=cy + (i-N/2)*(H*0.78/N);
+    const x1=cx + Math.sin(p)*amp;
+    const x2=cx + Math.sin(p+Math.PI)*amp;
+    const z1=Math.cos(p);
+    const z2=Math.cos(p+Math.PI);
+    // strand 1
+    ctx.globalAlpha=0.15+0.45*((z1+1)/2);
+    ctx.fillStyle='#f97316';
+    ctx.font=`${10+4*((z1+1)/2)}px JetBrains Mono`;
+    ctx.fillText(bases[(i)%4],x1-4,y+4);
+    // strand 2
+    ctx.globalAlpha=0.15+0.45*((z2+1)/2);
+    ctx.fillStyle='#fde68a';
+    ctx.font=`${10+4*((z2+1)/2)}px JetBrains Mono`;
+    ctx.fillText(bases[(i+2)%4],x2-4,y+4);
+    // rung
+    if(i%3===0){
+      ctx.globalAlpha=0.05+0.12*Math.min((z1+1)/2,(z2+1)/2);
+      ctx.strokeStyle='#fef3c7';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();
+    }
+  }
+  t++;
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+</body>
+</html>

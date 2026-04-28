@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Bio-Blob</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#070708;color:#fafafa;font-family:'Archivo',sans-serif;overflow-x:hidden;min-height:100vh}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Top nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:22px 48px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase}
+nav .brand{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.85)}
+nav .brand .mark{width:18px;height:18px;border:1.5px solid rgba(255,255,255,0.6);border-radius:50%;position:relative}
+nav .brand .mark::after{content:'';position:absolute;inset:3px;background:#f97316;border-radius:50%}
+nav .brand .meta{display:flex;flex-direction:column;line-height:1.15;gap:1px}
+nav .brand .meta b{color:#fafafa;font-weight:600;font-size:12px;letter-spacing:0.08em}
+nav .brand .meta span{color:rgba(255,255,255,0.4);font-size:9px}
+nav .links{display:flex;gap:36px;color:rgba(255,255,255,0.5)}
+nav .links a{display:flex;align-items:center;gap:6px}
+nav .links a .num{color:rgba(255,255,255,0.25)}
+nav .links a:hover{color:#fff}
+
+/* Hero */
+.hero{position:relative;min-height:100vh;padding:120px 24px 200px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+.blob-wrap{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.blob-wrap canvas{width:1100px;height:1100px;max-width:120vw;max-height:90vh;filter:blur(0.4px) saturate(1.2)}
+
+/* Glow underlay */
+.glow{position:absolute;width:780px;height:780px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,0.18) 0%,rgba(34,211,238,0.08) 35%,transparent 65%);filter:blur(60px);z-index:0}
+
+/* Headline */
+.tag{position:relative;z-index:3;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.35em;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:24px;display:inline-flex;gap:14px;align-items:center}
+.tag::before,.tag::after{content:'';width:30px;height:1px;background:rgba(255,255,255,0.25)}
+h1{position:relative;z-index:3;margin:0;font-weight:800;font-size:clamp(3rem,11vw,9rem);line-height:.9;letter-spacing:-0.05em;text-align:center;color:#fff}
+h1 .row1{display:block}
+h1 .gen{font-weight:400;font-size:0.42em;letter-spacing:0.02em;display:block;margin-top:14px;color:rgba(255,255,255,0.85);font-family:'Archivo',sans-serif}
+h1 .gen em{font-style:italic;color:#f97316}
+
+.sub{position:relative;z-index:3;margin:36px auto 0;max-width:620px;text-align:center;font-size:14px;color:rgba(255,255,255,0.55);line-height:1.7}
+.sub b{color:#fff;font-weight:500}
+
+.ctas{position:relative;z-index:3;margin-top:44px;display:flex;gap:14px}
+.btn{padding:15px 26px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;transition:all .25s;border-radius:999px}
+.btn-primary{background:#fafafa;color:#0a0a0a;border:1px solid #fafafa}
+.btn-primary:hover{background:#f97316;border-color:#f97316;color:#0a0a0a}
+.btn-ghost{background:transparent;color:#fafafa;border:1px solid rgba(255,255,255,0.25)}
+.btn-ghost:hover{border-color:#fafafa}
+
+/* Bottom protocol bar */
+.proto{position:fixed;left:0;right:0;bottom:0;z-index:5;border-top:1px solid rgba(255,255,255,0.08);padding:18px 48px;display:grid;grid-template-columns:1fr 2fr 1fr;gap:24px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);background:rgba(7,7,8,0.85);backdrop-filter:blur(12px)}
+.proto .col{display:flex;flex-direction:column;gap:4px}
+.proto .col .l{font-size:9px;color:rgba(255,255,255,0.35)}
+.proto .col .v{color:#fff;font-size:11px;letter-spacing:0.1em}
+.proto .center{text-align:center;flex-direction:row;justify-content:center;align-items:center;gap:24px}
+.proto .center .v{color:rgba(255,255,255,0.65)}
+.proto .right{align-items:flex-end;text-align:right}
+.proto .right .v{color:#a3e635}
+.proto .right .v::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#a3e635;margin-right:8px;vertical-align:1px;animation:bl 1.5s ease-in-out infinite;box-shadow:0 0 8px #a3e635}
+@keyframes bl{50%{opacity:.3}}
+
+@media (max-width:720px){
+  nav{padding:16px 20px}nav .links{display:none}
+  .proto{padding:14px 18px;grid-template-columns:1fr 1fr;gap:14px}
+  .proto .center{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="mark"></div>
+    <div class="meta"><b>AURASCI</b><span>SYS.10 / KKG—CORE</span></div>
+  </div>
+  <div class="links">
+    <a href="index.html"><span class="num">01</span>HOME</a>
+    <a href="market.html"><span class="num">02</span>MARKET</a>
+    <a href="all-pages.html"><span class="num">03</span>CATALOG</a>
+    <a href="dashboard-patron.html"><span class="num">04</span>TERMINAL (0)</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="glow"></div>
+  <div class="blob-wrap"><canvas id="blob" width="1100" height="1100"></canvas></div>
+
+  <span class="tag">Rendering Intent · Cultivating Capital</span>
+
+  <h1>
+    <span class="row1">INTENT</span>
+    <span class="row1">PROTOCOL</span>
+    <span class="gen">Open <em>Science</em> Funding</span>
+  </h1>
+
+  <p class="sub">Engineering profound research outcomes through rigorous <b>milestone verification</b>, capital escrow, and AI Agent trust loops. We operate at the intersection of <b>open science</b> and computational accountability.</p>
+
+  <div class="ctas">
+    <a class="btn btn-primary" href="market.html">Enter Lab →</a>
+    <a class="btn btn-ghost" href="onboarding-scientist.html">Publish Intent</a>
+  </div>
+</section>
+
+<div class="proto">
+  <div class="col"><span class="l">Protocol</span><span class="v">GEN-SEQ-094</span><span class="l">TCTAGCATGC</span></div>
+  <div class="col center">
+    <div><span class="l">Objective ·</span> <span class="v">Trust loop verification of milestone-based research funding.</span></div>
+  </div>
+  <div class="col right"><span class="l">Status</span><span class="v">CULTIVATING</span><span class="l" id="clock">00:00:00</span></div>
+</div>
+
+<script>
+// Live clock
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+}
+tick();setInterval(tick,1000);
+
+// Animated bio-blob with chromatic aberration
+const c=document.getElementById('blob'),ctx=c.getContext('2d');
+const W=c.width,H=c.height,cx=W/2,cy=H/2;
+let t=0;
+
+// Simple Perlin-ish noise via sin combinations
+function noise(a,b){
+  return Math.sin(a*1.3+b*0.7)*0.5
+        +Math.sin(a*0.5-b*1.1)*0.3
+        +Math.sin(a*2.1+b*1.7)*0.2;
+}
+function blobPath(offset, scale){
+  ctx.beginPath();
+  const N=160;
+  for(let i=0;i<=N;i++){
+    const a=(i/N)*Math.PI*2;
+    const r= 280
+      + 90*noise(Math.cos(a)*1.2 + t*0.0008 + offset, Math.sin(a)*1.2 + t*0.0008)
+      + 60*noise(Math.cos(a)*2.4 + t*0.0014, Math.sin(a)*2.4 - t*0.0011);
+    const x=cx+Math.cos(a)*r*scale;
+    const y=cy+Math.sin(a)*r*scale;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // Layer 1 — orange (R channel-ish), offset
+  ctx.save();
+  ctx.translate(-12,4);
+  ctx.fillStyle='rgba(249,115,22,0.55)';
+  ctx.filter='blur(28px)';
+  blobPath(0, 1);
+  ctx.fill();
+  ctx.restore();
+
+  // Layer 2 — magenta/pink
+  ctx.save();
+  ctx.translate(8,-2);
+  ctx.fillStyle='rgba(236,72,153,0.35)';
+  ctx.filter='blur(22px)';
+  blobPath(2.1, 0.95);
+  ctx.fill();
+  ctx.restore();
+
+  // Layer 3 — cyan (B-ish), offset other way
+  ctx.save();
+  ctx.translate(14,8);
+  ctx.fillStyle='rgba(34,211,238,0.45)';
+  ctx.filter='blur(24px)';
+  blobPath(4.3, 1.02);
+  ctx.fill();
+  ctx.restore();
+
+  // Layer 4 — dark core
+  ctx.save();
+  ctx.fillStyle='rgba(8,8,12,0.86)';
+  ctx.filter='blur(8px)';
+  blobPath(0.7, 0.78);
+  ctx.fill();
+  ctx.restore();
+
+  // rim highlight
+  ctx.save();
+  ctx.strokeStyle='rgba(254,215,170,0.25)';
+  ctx.lineWidth=1.5;
+  ctx.filter='blur(1px)';
+  blobPath(0, 1);
+  ctx.stroke();
+  ctx.restore();
+
+  t++;
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+</body>
+</html>

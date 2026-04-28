@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Landing</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared.css?v=2" />
+<style>
+  /* Landing-specific */
+  .landing-bg { background: #f7ecdf; min-height: calc(100vh - 64px); position: relative; overflow: hidden; }
+  .landing-wash {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 85%, rgba(247,236,223,0.9) 0%, rgba(247,236,223,0.25) 55%, rgba(247,236,223,0) 100%);
+  }
+  .landing-bust {
+    position: absolute; inset: 0; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.55;
+  }
+  /* Halftone bust placeholder — radial dots gradient as a stand-in for the 3D bust */
+  .bust-shape {
+    width: 520px; height: 520px;
+    background-image: radial-gradient(circle, #3a2418 1.2px, transparent 1.5px);
+    background-size: 8px 8px;
+    -webkit-mask: radial-gradient(ellipse 38% 48% at 50% 42%, black 60%, transparent 75%);
+            mask: radial-gradient(ellipse 38% 48% at 50% 42%, black 60%, transparent 75%);
+    filter: blur(0.2px);
+  }
+  .hero { position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 80px 24px 64px; text-align: center; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    border: 1px solid rgba(16,185,129,0.3);
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+    margin-bottom: 32px;
+  }
+  .hero-badge span { font-size: 11px; font-weight: 500; color: var(--emerald-700); letter-spacing: 0.1em; text-transform: uppercase; }
+  .hero h1 {
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-weight: 600; letter-spacing: -0.04em; line-height: 0.95;
+    color: #3a2418; margin: 0 0 24px;
+    font-size: clamp(2.75rem, 8vw, 7rem);
+  }
+  .hero h1 .grad {
+    font-style: italic;
+    background: linear-gradient(to right, #f97316, #fb923c);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.tag {
+    font-size: 18px; color: #5a3d2a; max-width: 640px; margin: 0 auto 12px; line-height: 1.6;
+  }
+  .hero p.tag-mono {
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: rgba(194, 65, 12, 0.8); margin-bottom: 56px;
+  }
+  .entry-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    max-width: 880px; margin: 0 auto;
+  }
+  @media (max-width: 720px){ .entry-grid { grid-template-columns: 1fr; } }
+  .entry-card {
+    position: relative; overflow: hidden;
+    border-radius: 16px; border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.75); backdrop-filter: blur(12px);
+    padding: 32px; text-align: left;
+    transition: all .5s ease;
+    box-shadow: 0 8px 30px rgba(249,115,22,0.12);
+  }
+  .entry-card:hover { transform: scale(1.02); border-color: var(--orange-300); }
+  .entry-icon {
+    width: 56px; height: 56px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .entry-icon.green { background: var(--emerald-50); color: var(--emerald-600); }
+  .entry-icon.orange { background: var(--orange-50); color: var(--orange-500); }
+  .entry-card h2 { font-size: 24px; font-weight: 600; color: var(--gray-900); margin: 0 0 12px; }
+  .entry-card p.desc { font-size: 14px; color: var(--gray-700); line-height: 1.6; margin: 0 0 24px; }
+  .feature { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-600); margin-bottom: 8px; }
+  .entry-cta { display: flex; align-items: center; gap: 8px; color: var(--orange-600); font-size: 14px; font-weight: 500; margin-top: 24px; }
+
+  .footer-trust {
+    margin-top: 48px; display: flex; align-items: center; justify-content: center;
+    gap: 24px; font-size: 11px; color: var(--gray-500);
+    flex-wrap: wrap;
+  }
+  .footer-trust .sep { width: 1px; height: 12px; background: var(--gray-300); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="nav-logo-mark">A</span><span>AuraSci</span></a>
+    <div class="nav-links">
+      <a href="market.html" class="nav-link">Market</a>
+      <a href="dashboard-patron.html" class="nav-link">Portfolio</a>
+      <span class="nav-link muted">Governance</span>
+      <span class="nav-link muted">Leaderboard</span>
+    </div>
+  </div>
+</nav>
+
+<div class="landing-bg">
+  <div class="landing-bust"><div class="bust-shape"></div></div>
+  <div class="landing-wash"></div>
+
+  <section class="hero">
+    <div class="hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="green-shield shield-pulse"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>AI-Verified Research Funding</span>
+    </div>
+
+    <h1>
+      <span style="display:block">From Proof</span>
+      <span style="display:block">to <span class="grad">Capital</span></span>
+    </h1>
+
+    <p class="tag">Milestone-based open science funding infrastructure<br />powered by AI Agents.</p>
+    <p class="tag-mono">Scientists publish · AI verifies · Patrons fund · Capital flows</p>
+
+    <div class="entry-grid">
+      <button class="entry-card">
+        <div class="entry-icon green">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
+        </div>
+        <h2>I'm a Scientist</h2>
+        <p class="desc">Publish your research intent, set milestones, submit proof of progress, and receive milestone-based patronage for your breakthrough work.</p>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg><span>Publish Intent Assets</span></div>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>AI-Verified Milestones</span></div>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>Milestone-Based Funding</span></div>
+        <div class="entry-cta"><span>Start Publishing</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </button>
+
+      <button class="entry-card">
+        <div class="entry-icon orange">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+        </div>
+        <h2>I'm a Patron</h2>
+        <p class="desc">Browse AI-verified research intents, provide patronage to promising science, and track milestone-based progress of funded projects.</p>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Browse Verified Research</span></div>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Escrow-Protected Patronage</span></div>
+        <div class="feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>AI Trust Loop Verification</span></div>
+        <div class="entry-cta"><span>Explore Market</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </button>
+    </div>
+
+    <div class="footer-trust">
+      <span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> AI Verified</span>
+      <span class="sep"></span>
+      <span>Milestone-Based</span>
+      <span class="sep"></span>
+      <span>Escrow-Protected</span>
+      <span class="sep"></span>
+      <span>Open Science</span>
+    </div>
+  </section>
+</div>
+
+<script src="coming-soon.js?v=3"></script>
+</body>
+</html>

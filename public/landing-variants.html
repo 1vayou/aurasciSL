@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Landing Variants</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:'Inter',sans-serif;background:#0a0a0a;color:#fafafa;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.page{padding:64px 24px 80px;max-width:1280px;margin:0 auto}
+.head{text-align:center;margin-bottom:48px}
+.head .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;border:1px solid rgba(249,115,22,0.4);background:rgba(249,115,22,0.08);font-family:'JetBrains Mono',monospace;font-size:11px;color:#fb923c;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:24px}
+.head h1{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:400;letter-spacing:-0.03em;line-height:1;margin:0 0 12px}
+.head h1 .grad{background:linear-gradient(135deg,#f97316,#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head p{color:rgba(255,255,255,0.55);font-size:15px;max-width:640px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px}
+.card{position:relative;border-radius:18px;border:1px solid rgba(255,255,255,0.08);background:#101012;overflow:hidden;display:block;transition:all .3s;text-decoration:none}
+.card:hover{transform:translateY(-4px);border-color:rgba(249,115,22,0.5);box-shadow:0 20px 50px rgba(249,115,22,0.18)}
+.frame{aspect-ratio:16/10;border-bottom:1px solid rgba(255,255,255,0.08);position:relative;overflow:hidden}
+.frame iframe{position:absolute;inset:0;width:200%;height:200%;transform:scale(0.5);transform-origin:top left;border:0;pointer-events:none}
+.tag-row{position:absolute;top:14px;left:14px;display:flex;gap:6px;z-index:2}
+.chip{padding:4px 10px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.15);color:#fafafa}
+.chip.orange{border-color:rgba(249,115,22,0.5);color:#fb923c}
+.body{padding:22px 24px 24px}
+.body .v{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(249,115,22,0.85);text-transform:uppercase;margin-bottom:8px}
+.body h3{font-size:20px;font-weight:600;margin:0 0 8px;letter-spacing:-0.01em;color:#fafafa}
+.body p{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.55;margin:0 0 14px}
+.body .meta{display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em}
+.body .meta .k{color:rgba(255,255,255,0.7)}
+.body .open{margin-top:14px;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#fb923c;font-weight:500}
+.body .open .arr{transition:transform .25s}
+.card:hover .body .open .arr{transform:translateX(4px)}
+
+.original{margin-top:48px}
+.original h2{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.25em;text-transform:uppercase;margin:0 0 16px}
+.orig-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.orig-row a{padding:16px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.85);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.orig-row a:hover{border-color:rgba(249,115,22,0.4);color:#fff}
+.orig-row a .arr{color:rgba(249,115,22,0.7)}
+
+footer{margin-top:64px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.2em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="head">
+    <div class="badge">● 3 Concept Variants · Click to enter</div>
+    <h1>Landing <span class="grad">Concepts</span></h1>
+    <p>Three前沿方向 of "From Proof to Capital". Each has full Canvas/CSS animation. 每张卡片实时预览，点击进入完整页面。</p>
+  </div>
+
+  <div class="grid">
+
+    <a class="card" href="landing-v2-terminal.html">
+      <div class="frame">
+        <div class="tag-row">
+          <span class="chip">A</span>
+          <span class="chip orange">DARK · DNA</span>
+        </div>
+        <iframe src="landing-v2-terminal.html" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <div class="body">
+        <div class="v">Variant A · Lab Terminal</div>
+        <h3>Rewriting the Architecture of Science</h3>
+        <p>深色实验终端：DNA 双螺旋粒子、四角 HUD、巨字带 RGB glitch、底部协议条。最像图 3 / 图 4 的科研感。</p>
+        <div class="meta"><span><span class="k">BG:</span> #0a0a0a</span><span><span class="k">FX:</span> Canvas helix · glitch · pulse</span></div>
+        <span class="open">Open variant <span class="arr">→</span></span>
+      </div>
+    </a>
+
+    <a class="card" href="landing-v2-bust.html">
+      <div class="frame">
+        <div class="tag-row">
+          <span class="chip">B</span>
+          <span class="chip orange">WARM · BUST</span>
+        </div>
+        <iframe src="landing-v2-bust.html" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <div class="body">
+        <div class="v">Variant B · Halftone Bust</div>
+        <h3>Open Science — 衬线巨字 + 半色调人像</h3>
+        <p>米橙纸面：Canvas 半色调人像呼吸漂移、字体 hover 时 RGB 故障切换、底部均衡器条与状态灯。最贴近图 1 的杂志感。</p>
+        <div class="meta"><span><span class="k">BG:</span> #f0e6d6</span><span><span class="k">FX:</span> Halftone bust · RGB split</span></div>
+        <span class="open">Open variant <span class="arr">→</span></span>
+      </div>
+    </a>
+
+    <a class="card" href="landing-v2-blob.html">
+      <div class="frame">
+        <div class="tag-row">
+          <span class="chip">C</span>
+          <span class="chip orange">DARK · BLOB</span>
+        </div>
+        <iframe src="landing-v2-blob.html" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <div class="body">
+        <div class="v">Variant C · Bio-Blob</div>
+        <h3>Intent Protocol — 色散生物体</h3>
+        <p>深色：噪声变形的生物 blob，橙/品红/青三层色散叠加，胶囊按钮，底部 PROTOCOL/OBJECTIVE/STATUS 协议条。最像图 4。</p>
+        <div class="meta"><span><span class="k">BG:</span> #070708</span><span><span class="k">FX:</span> Noise blob · chromatic aberration</span></div>
+        <span class="open">Open variant <span class="arr">→</span></span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="original">
+    <h2>// Reference</h2>
+    <div class="orig-row">
+      <a href="index.html"><span>Original Landing (warm cards)</span><span class="arr">→</span></a>
+      <a href="all-pages.html"><span>All 7 pages index</span><span class="arr">→</span></a>
+      <a href="market.html"><span>Market</span><span class="arr">→</span></a>
+    </div>
+  </div>
+
+  <footer>AURASCI · LANDING CONCEPTS · 094 / TRUST LOOP</footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Index</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="bust-theme.css?v=2" />
+<style>
+.hero-wrap{padding:60px 32px 32px;max-width:1080px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);letter-spacing:.18em;text-transform:uppercase;margin-bottom:20px}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:24px;height:1px;background:var(--rust)}
+.hero-h{font-family:'Newsreader',serif;font-weight:500;font-style:italic;font-size:clamp(3rem,7vw,5.5rem);color:var(--ink);margin:0 0 18px;letter-spacing:-0.02em;line-height:0.95}
+.hero-h em{color:var(--rust);font-style:italic}
+.hero-h .reg{font-style:normal;font-weight:500}
+.hero-tag{font-size:17px;color:var(--ink-3);max-width:620px;margin:0 auto 8px;line-height:1.6}
+.hero-mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(154,52,18,0.75);margin-bottom:48px}
+
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:880px;margin:0 auto 56px}
+@media (max-width:720px){.entry-grid{grid-template-columns:1fr}}
+.entry-card{display:block;text-decoration:none;position:relative;overflow:hidden;border-radius:6px;border:1px solid var(--line);background:#fdfcf8;padding:30px;text-align:left;transition:all .25s ease}
+.entry-card::before,.entry-card::after{content:'';position:absolute;width:14px;height:14px;border:1.5px solid var(--rust);opacity:0;transition:opacity .25s}
+.entry-card::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.entry-card::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+.entry-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(154,52,18,0.10);border-color:rgba(194,65,12,0.4)}
+.entry-card:hover::before,.entry-card:hover::after{opacity:1}
+.entry-icon{width:54px;height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;background:rgba(254,215,170,0.40);color:var(--rust)}
+.entry-icon.green{background:rgba(101,163,13,0.10);color:#4d7c0f}
+.entry-card h2{font-family:'Newsreader',serif;font-weight:500;font-size:26px;color:var(--ink);margin:0 0 10px;letter-spacing:-0.01em}
+.entry-card h2 em{font-style:italic;color:var(--rust)}
+.entry-card .desc{font-size:14px;color:var(--ink-3);line-height:1.6;margin:0 0 20px}
+.feature{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
+.feature svg{flex-shrink:0}
+.entry-cta{margin-top:22px;display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--rust);padding-top:18px;border-top:1px solid var(--line-soft);width:100%;justify-content:space-between}
+
+.section-h{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);text-align:center;margin:0 0 22px;display:flex;align-items:center;justify-content:center;gap:14px}
+.section-h::before,.section-h::after{content:'';width:50px;height:1px;background:rgba(58,36,24,0.18)}
+
+.dir-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1080px;margin:0 auto 64px}
+@media (max-width:900px){.dir-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.dir-grid{grid-template-columns:1fr}}
+.dir-card{display:flex;flex-direction:column;padding:18px 20px;border-radius:6px;border:1px solid var(--line);background:#fdfcf8;text-decoration:none;transition:all .2s;position:relative}
+.dir-card:hover{border-color:rgba(194,65,12,0.4);background:#fffaee}
+.dir-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:.16em;margin-bottom:8px}
+.dir-name{font-family:'Newsreader',serif;font-weight:500;font-size:18px;color:var(--ink);margin:0 0 4px;letter-spacing:-0.005em}
+.dir-name em{font-style:italic;color:var(--rust)}
+.dir-meta{font-size:12px;color:var(--mute);line-height:1.4}
+.dir-arrow{position:absolute;top:18px;right:20px;color:var(--mute);transition:all .2s}
+.dir-card:hover .dir-arrow{color:var(--rust);transform:translate(2px,-2px)}
+
+.variants-section{max-width:1080px;margin:0 auto 56px;padding:24px;border-radius:6px;background:rgba(254,215,170,0.18);border:1px dashed rgba(194,65,12,0.35)}
+.var-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+@media (max-width:720px){.var-grid{grid-template-columns:1fr}}
+.var-card{display:block;padding:14px 16px;background:#fdfcf8;border:1px solid var(--line);border-radius:6px;text-decoration:none;transition:all .2s}
+.var-card:hover{border-color:var(--rust)}
+.var-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--rust);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.var-name{font-family:'Newsreader',serif;font-weight:500;font-size:16px;color:var(--ink);margin:0 0 4px;letter-spacing:-0.005em}
+.var-desc{font-size:12px;color:var(--mute);line-height:1.4}
+
+.footer-trust{display:flex;align-items:center;justify-content:center;gap:18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);flex-wrap:wrap;letter-spacing:.06em}
+.footer-trust .sep{width:1px;height:10px;background:rgba(58,36,24,0.2)}
+</style>
+</head>
+<body>
+
+<div class="bportrait-bg"></div>
+
+<nav class="bnav">
+  <div class="left">
+    <div class="who">aurasci/lab</div>
+    <a class="brand" href="index.html">AuraSci Studios</a>
+  </div>
+  <div class="links">
+    <a href="market.html">Market</a>
+    <a href="dashboard-patron.html">Portfolio</a>
+    <span class="muted">Governance</span>
+    <span class="muted">Leaderboard</span>
+  </div>
+</nav>
+
+<section class="bpage">
+  <div class="hero-wrap fade-in">
+    <div class="hero-eyebrow">AI-Verified Research Funding · Vol. 094</div>
+    <h1 class="hero-h"><span class="reg">From proof,</span><br/>to <em>capital.</em></h1>
+    <p class="hero-tag">Milestone-based open science funding infrastructure powered by AI Agents.</p>
+    <p class="hero-mono">Scientists publish · AI verifies · Patrons fund · Capital flows</p>
+
+    <div class="entry-grid">
+      <a class="entry-card" href="onboarding-scientist.html">
+        <div class="entry-icon green">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
+        </div>
+        <h2>I'm a <em>scientist.</em></h2>
+        <p class="desc">Publish your research intent, set milestones, submit proof of progress, and receive milestone-based patronage for breakthrough work.</p>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5"/></svg><span>Publish intent assets</span></div>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>AI-verified milestones</span></div>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>Milestone-based funding</span></div>
+        <div class="entry-cta"><span>Start publishing</span><span style="font-family:'JetBrains Mono',monospace">→</span></div>
+      </a>
+
+      <a class="entry-card" href="market.html">
+        <div class="entry-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+        </div>
+        <h2>I'm a <em>patron.</em></h2>
+        <p class="desc">Browse AI-verified research intents, provide patronage to promising science, and track milestone-based progress of funded projects.</p>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Browse verified research</span></div>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Escrow-protected patronage</span></div>
+        <div class="feature"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>AI trust-loop verification</span></div>
+        <div class="entry-cta"><span>Explore market</span><span style="font-family:'JetBrains Mono',monospace">→</span></div>
+      </a>
+    </div>
+
+    <div class="section-h">All product pages</div>
+    <div class="dir-grid">
+      <a class="dir-card" href="market.html">
+        <div class="dir-num">01 / Discover</div>
+        <h3 class="dir-name">Research <em>market</em></h3>
+        <div class="dir-meta">Browse all open intent assets</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+      <a class="dir-card" href="intent-detail.html">
+        <div class="dir-num">02 / Inspect</div>
+        <h3 class="dir-name">Intent <em>detail</em></h3>
+        <div class="dir-meta">Milestones · escrow · backers</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+      <a class="dir-card" href="onboarding-scientist.html">
+        <div class="dir-num">03 / Join</div>
+        <h3 class="dir-name">Scientist <em>onboarding</em></h3>
+        <div class="dir-meta">Connect ORCID & GitHub</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+      <a class="dir-card" href="dashboard-scientist.html">
+        <div class="dir-num">04 / Manage</div>
+        <h3 class="dir-name">Scientist <em>dashboard</em></h3>
+        <div class="dir-meta">Lab profile · review status</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+      <a class="dir-card" href="create-intent.html">
+        <div class="dir-num">05 / Publish</div>
+        <h3 class="dir-name">Create <em>intent</em></h3>
+        <div class="dir-meta">Define milestones & resource asks</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+      <a class="dir-card" href="dashboard-patron.html">
+        <div class="dir-num">06 / Track</div>
+        <h3 class="dir-name">Patron <em>portfolio</em></h3>
+        <div class="dir-meta">Funded holdings · Aura allocation</div>
+        <span class="dir-arrow">↗</span>
+      </a>
+    </div>
+
+    <div class="variants-section">
+      <div class="section-h" style="margin-bottom:6px">Landing variants · alternate explorations</div>
+      <div class="var-grid">
+        <a class="var-card" href="landing-v2-terminal.html">
+          <div class="var-tag">Variant A</div>
+          <h4 class="var-name">Lab Terminal</h4>
+          <div class="var-desc">Dark · DNA helix · HUD chrome</div>
+        </a>
+        <a class="var-card" href="landing-v2-bust.html">
+          <div class="var-tag">Variant B · Live</div>
+          <h4 class="var-name">Halftone Bust</h4>
+          <div class="var-desc">Cream · serif giant · RGB glitch</div>
+        </a>
+        <a class="var-card" href="landing-v2-blob.html">
+          <div class="var-tag">Variant C</div>
+          <h4 class="var-name">Bio-Blob</h4>
+          <div class="var-desc">Dark · noise blob · protocol bar</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-trust">
+      <span style="display:inline-flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#65a30d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> AI verified</span>
+      <span class="sep"></span>
+      <span>Milestone-based</span>
+      <span class="sep"></span>
+      <span>Escrow-protected</span>
+      <span class="sep"></span>
+      <span>Open science</span>
+    </div>
+  </div>
+</section>
+
+<div class="bcorner-bl">
+  <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+  <div>Index · 06 surfaces<br/>Vol. 094 · trust loop</div>
+</div>
+<div class="bcorner-br">
+  <span class="blink"></span>System · live<br/><b>$2.4M USDC</b> in escrow
+</div>
+
+<script src="coming-soon.js?v=3"></script>
+</body>
+</html>

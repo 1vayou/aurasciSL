@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Create Intent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="bust-theme.css?v=3" />
+<style>
+.pg-head{margin-bottom:30px}
+.pg-head .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.pg-head .eyebrow::before{content:'';width:18px;height:1px;background:var(--rust)}
+.pg-head h1{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2rem,3.6vw,2.8rem);color:var(--ink);margin:0 0 10px;letter-spacing:-0.01em;line-height:1.05}
+.pg-head h1 em{font-style:italic;color:var(--rust)}
+.pg-head p{font-size:15px;color:var(--ink-3);margin:0;max-width:580px;line-height:1.6}
+
+.stepper{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:32px}
+.step-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;background:#fdfcf8;color:var(--mute);border:1px solid var(--line);transition:all .25s}
+.step-num.active{background:var(--rust);color:#faf3e3;border-color:var(--rust);box-shadow:0 0 0 4px rgba(194,65,12,0.12)}
+.step-num.done{background:#65a30d;color:#faf3e3;border-color:#65a30d}
+.step-line{width:54px;height:1px;background:rgba(58,36,24,0.2);transition:all .25s}
+.step-line.done{background:#65a30d}
+
+.form-card{padding:30px;border-radius:6px;border:1px solid var(--line);background:#fdfcf8;position:relative}
+.form-card::before,.form-card::after{content:'';position:absolute;width:16px;height:16px;border:1.5px solid var(--rust);opacity:.5}
+.form-card::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.form-card::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+.form-card h2{font-family:'Newsreader',serif;font-weight:500;font-size:22px;color:var(--ink);margin:0 0 6px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.form-card .sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);margin:0 0 24px;letter-spacing:.08em;text-transform:uppercase}
+
+.pane{display:none}
+.pane.active{display:block}
+
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--mute);margin-bottom:8px;letter-spacing:.12em;text-transform:uppercase}
+.field{margin-bottom:20px}
+.input{width:100%;padding:13px 14px;border-radius:6px;border:1px solid var(--line);background:#faf3e3;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);transition:all .2s;box-sizing:border-box}
+.input:focus{outline:none;border-color:var(--rust);background:#fffaee;box-shadow:0 0 0 3px rgba(194,65,12,0.10)}
+textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inherit}
+.req{color:var(--rust)}
+
+.tag-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(254,215,170,0.40);border:1px solid rgba(194,65,12,0.3);color:var(--rust);font-size:12px;font-weight:500;font-family:'JetBrains Mono',monospace;margin-right:6px;margin-bottom:6px}
+
+.ms-block{padding:20px;border-radius:6px;border:1px solid var(--line);background:#faf3e3;margin-bottom:14px;position:relative}
+.ms-block::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rust);border-radius:6px 0 0 6px}
+.ms-block .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ms-num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--rust);letter-spacing:.14em;text-transform:uppercase}
+.ms-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:600px){.ms-row{grid-template-columns:1fr}}
+.icon-btn{background:none;border:none;color:var(--mute);cursor:pointer;padding:6px;border-radius:4px;transition:all .2s}
+.icon-btn:hover{color:var(--rust);background:rgba(194,65,12,0.06)}
+.add-ms{width:100%;padding:14px;border-radius:6px;border:1.5px dashed rgba(194,65,12,0.5);background:rgba(254,215,170,0.18);color:var(--rust);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all .2s}
+.add-ms:hover{background:rgba(254,215,170,0.35);border-color:var(--rust)}
+
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:600px){.res-grid{grid-template-columns:1fr}}
+.res-card{padding:16px;border-radius:6px;border:1px solid var(--line);background:#faf3e3;text-align:left;cursor:pointer;transition:all .2s;font-family:inherit}
+.res-card:hover{border-color:rgba(194,65,12,0.5)}
+.res-card.selected{border-color:var(--rust);background:rgba(254,215,170,0.30);box-shadow:0 4px 12px rgba(194,65,12,0.10)}
+.res-card .a{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.res-card .b{font-size:12px;color:var(--mute);line-height:1.4}
+
+.preview-box{margin-top:24px;padding:20px;border-radius:6px;background:rgba(254,215,170,0.30);border:1px solid rgba(194,65,12,0.35);position:relative}
+.preview-box .l{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--rust);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
+.preview-ticker{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-0.01em}
+.preview-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);margin-top:6px}
+
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:600px){.review-grid{grid-template-columns:1fr}}
+.review-cell{padding:14px;border-radius:6px;background:#faf3e3;border:1px solid var(--line)}
+.review-cell .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.review-cell .v{font-family:'Newsreader',serif;font-size:17px;color:var(--ink);line-height:1.4}
+.review-list{padding:18px;border-radius:6px;background:#faf3e3;border:1px solid var(--line);margin-bottom:18px}
+.review-list .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.review-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(58,36,24,0.08);font-size:13px;color:var(--ink-2);gap:12px}
+.review-row:last-child{border-bottom:none}
+.review-row .l{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);letter-spacing:.1em;text-transform:uppercase;min-width:60px}
+.review-row .d{flex:1;color:var(--ink)}
+.review-row .a{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
+
+.attest{margin:18px 0 6px;padding:16px;border-radius:6px;background:rgba(101,163,13,0.06);border:1px solid rgba(101,163,13,0.30);display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#3f5e0d;line-height:1.6;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;text-transform:none}
+.attest input{margin-top:3px;accent-color:#65a30d;flex:none}
+
+.form-foot{margin-top:32px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-back{padding:13px 22px;border-radius:6px;background:transparent;border:1px solid var(--line);color:var(--ink-2);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-back:hover{border-color:var(--rust);color:var(--rust)}
+.btn-next{padding:13px 26px;border-radius:6px;background:var(--ink);border:none;color:#faf3e3;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.btn-next:hover{background:var(--rust)}
+.btn-next[disabled]{opacity:.4;cursor:not-allowed}
+.btn-next[disabled]:hover{background:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="bportrait-bg"></div>
+
+<nav class="bnav">
+  <div class="left">
+    <div class="who">aurasci/lab</div>
+    <a class="brand" href="landing-v2-bust.html">AuraSci Studios</a>
+  </div>
+  <div class="links">
+    <a href="market.html">Market</a>
+    <a href="dashboard-patron.html">Portfolio</a>
+    <span class="muted">Governance</span>
+    <span class="muted">Leaderboard</span>
+  </div>
+</nav>
+
+<section class="bpage">
+  <div class="bpage-inner fade-in" style="max-width:780px">
+    <div class="pg-head">
+      <div class="eyebrow">Create · Intent Asset</div>
+      <h1>Define your research <em>milestones.</em></h1>
+      <p>Break the work into 3 verifiable milestones. Funds release the moment a Gatekeeper agent attests completion.</p>
+    </div>
+
+    <div class="stepper">
+      <div class="step-num active" data-num="1">1</div>
+      <div class="step-line" data-line="1-2"></div>
+      <div class="step-num" data-num="2">2</div>
+      <div class="step-line" data-line="2-3"></div>
+      <div class="step-num" data-num="3">3</div>
+    </div>
+
+    <div class="form-card">
+
+      <!-- ============ STEP 1: BLUEPRINT ============ -->
+      <div class="pane active" data-pane="1">
+        <div class="sub">Step 01 · Research blueprint</div>
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Title, hypothesis & tags
+        </h2>
+
+        <div class="field">
+          <label>Title <span class="req">*</span></label>
+          <input class="input" id="f-title" type="text" value="Targeting senescent cells to reverse cardiac fibrosis" />
+        </div>
+
+        <div class="field">
+          <label>Hypothesis <span class="req">*</span></label>
+          <textarea class="input" id="f-hyp">Senescent cells accumulate in aged cardiac tissue, driving fibrosis and dysfunction. Selective elimination via mRNA-based therapeutic should reverse fibrosis and restore cardiac function in murine models.</textarea>
+        </div>
+
+        <div class="field">
+          <label>Tags</label>
+          <div>
+            <span class="tag-chip">#Longevity</span>
+            <span class="tag-chip">#AI-Bio</span>
+            <span class="tag-chip">#Tier-1</span>
+          </div>
+          <input class="input" type="text" placeholder="Add tag and press Enter..." style="margin-top:8px" />
+        </div>
+
+        <div class="form-foot">
+          <a class="btn-back" href="dashboard-scientist.html" style="text-decoration:none">← Cancel</a>
+          <button class="btn-next" data-go="2">Continue to milestones <span style="font-family:'JetBrains Mono',monospace">↗</span></button>
+        </div>
+      </div>
+
+      <!-- ============ STEP 2: MILESTONES ============ -->
+      <div class="pane" data-pane="2">
+        <div class="sub">Step 02 · Milestone definition</div>
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Milestones · 02/03
+        </h2>
+
+        <div class="ms-block">
+          <div class="head">
+            <span class="ms-num">M1 — Dataset</span>
+            <button class="icon-btn" title="Remove">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>Description</label>
+            <input class="input" type="text" value="Compile comprehensive senescent cell biomarker dataset from cardiac tissue samples" />
+          </div>
+          <div class="ms-row">
+            <div class="field" style="margin-bottom:0">
+              <label>Verification criteria</label>
+              <input class="input" type="text" value="Dataset passes quality audit · >95% annotation accuracy" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Release amount (USDC)</label>
+              <input class="input" type="number" value="40000" />
+            </div>
+          </div>
+        </div>
+
+        <div class="ms-block">
+          <div class="head">
+            <span class="ms-num">M2 — In-vitro</span>
+            <button class="icon-btn" title="Remove">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>Description</label>
+            <input class="input" type="text" value="Demonstrate selective senescent cell clearance in vitro cardiac tissue models" />
+          </div>
+          <div class="ms-row">
+            <div class="field" style="margin-bottom:0">
+              <label>Verification criteria</label>
+              <input class="input" type="text" value="Peer-reviewed preprint · reproducible protocol on bioRxiv" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Release amount (USDC)</label>
+              <input class="input" type="number" value="55000" />
+            </div>
+          </div>
+        </div>
+
+        <div class="ms-block">
+          <div class="head">
+            <span class="ms-num">M3 — In-vivo · final</span>
+            <button class="icon-btn" title="Remove">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>Description</label>
+            <input class="input" type="text" value="Validate cardiac function recovery in murine model post senolytic treatment" />
+          </div>
+          <div class="ms-row">
+            <div class="field" style="margin-bottom:0">
+              <label>Verification criteria</label>
+              <input class="input" type="text" value="Echocardiogram + histology · ≥30% fibrosis reduction (n≥12)" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Release amount (USDC)</label>
+              <input class="input" type="number" value="35000" />
+            </div>
+          </div>
+        </div>
+
+        <button class="add-ms">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add another milestone
+        </button>
+
+        <div class="field" style="margin-top:24px">
+          <label style="display:flex;align-items:center;gap:8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+            Resource asks
+          </label>
+          <div class="res-grid">
+            <button class="res-card selected" data-res="gpu">
+              <div class="a">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                500 H100 GPU hrs
+              </div>
+              <div class="b">For training transformer models on biomarker data</div>
+            </button>
+            <button class="res-card" data-res="lab">
+              <div class="a">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--mute)"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                Wet lab access
+              </div>
+              <div class="b">BSL-2 facility for in vitro experiments</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-box">
+          <div class="l">Auto-generated asset ticker</div>
+          <div class="preview-ticker">$CELL-01</div>
+          <div class="preview-meta">Total ask · $130,000 USDC · 03 milestones · season 094</div>
+        </div>
+
+        <div class="form-foot">
+          <button class="btn-back" data-go="1">← Back</button>
+          <button class="btn-next" data-go="3">Continue to review <span style="font-family:'JetBrains Mono',monospace">↗</span></button>
+        </div>
+      </div>
+
+      <!-- ============ STEP 3: REVIEW ============ -->
+      <div class="pane" data-pane="3">
+        <div class="sub">Step 03 · Review & publish</div>
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Confirm and publish to market
+        </h2>
+
+        <div class="review-grid">
+          <div class="review-cell">
+            <div class="k">Ticker</div>
+            <div class="v" style="font-family:'JetBrains Mono',monospace;font-weight:700">$CELL-01</div>
+          </div>
+          <div class="review-cell">
+            <div class="k">Total ask</div>
+            <div class="v">$130,000 USDC</div>
+          </div>
+          <div class="review-cell">
+            <div class="k">Title</div>
+            <div class="v" id="r-title">Targeting senescent cells to reverse cardiac fibrosis</div>
+          </div>
+          <div class="review-cell">
+            <div class="k">Season · review SLA</div>
+            <div class="v">094 · ≤ 48 h</div>
+          </div>
+        </div>
+
+        <div class="review-list">
+          <div class="k">Milestones · 03</div>
+          <div class="review-row">
+            <div class="l">M1</div>
+            <div class="d">Compile senescent cell biomarker dataset</div>
+            <div class="a">$40k</div>
+          </div>
+          <div class="review-row">
+            <div class="l">M2</div>
+            <div class="d">In vitro selective senescent cell clearance</div>
+            <div class="a">$55k</div>
+          </div>
+          <div class="review-row">
+            <div class="l">M3</div>
+            <div class="d">Murine model · ≥30% fibrosis reduction</div>
+            <div class="a">$35k</div>
+          </div>
+        </div>
+
+        <div class="review-list">
+          <div class="k">Resource asks · 01</div>
+          <div class="review-row">
+            <div class="l">GPU</div>
+            <div class="d">500 H100 GPU hrs · model training</div>
+            <div class="a">included</div>
+          </div>
+        </div>
+
+        <label class="attest">
+          <input type="checkbox" id="attest-box" />
+          <span>I attest the data and milestones above are accurate. By publishing, I authorize KKG Gatekeeper agents to verify completion on-chain. Funds release per milestone — no manual override.</span>
+        </label>
+
+        <div class="form-foot">
+          <button class="btn-back" data-go="2">← Back</button>
+          <button class="btn-next" id="publish-btn" disabled>Publish $CELL-01 to market <span style="font-family:'JetBrains Mono',monospace">↗</span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="bcorner-bl">
+  <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+  <div>Draft · $CELL-01<br/>Vol. 094 · trust loop</div>
+</div>
+<div class="bcorner-br" id="br-status">
+  <span class="blink"></span>Step · <b id="br-step">01/03</b><br/><b>$130,000 USDC</b> total ask
+</div>
+
+<script src="coming-soon.js?v=3"></script>
+<script>
+(function(){
+  function setStep(n){
+    document.querySelectorAll('[data-pane]').forEach(function(p){
+      p.classList.toggle('active', +p.dataset.pane === n);
+    });
+    document.querySelectorAll('.step-num').forEach(function(d){
+      var k = +d.dataset.num;
+      d.classList.toggle('done', k < n);
+      d.classList.toggle('active', k === n);
+    });
+    document.querySelectorAll('.step-line').forEach(function(l){
+      var from = +l.dataset.line.split('-')[0];
+      l.classList.toggle('done', from < n);
+    });
+    document.getElementById('br-step').textContent =
+      String(n).padStart(2,'0') + '/03';
+    // sync title into review pane
+    document.getElementById('r-title').textContent =
+      document.getElementById('f-title').value || '—';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  document.querySelectorAll('[data-go]').forEach(function(b){
+    b.addEventListener('click', function(){ setStep(+b.dataset.go); });
+  });
+
+  // resource cards toggle
+  document.querySelectorAll('.res-card').forEach(function(c){
+    c.addEventListener('click', function(){ c.classList.toggle('selected'); });
+  });
+
+  // attestation gates publish
+  var box = document.getElementById('attest-box');
+  var pub = document.getElementById('publish-btn');
+  box.addEventListener('change', function(){ pub.disabled = !box.checked; });
+  pub.addEventListener('click', function(){
+    if (pub.disabled) return;
+    pub.textContent = '✓ Published — redirecting…';
+    pub.style.background = '#65a30d';
+    setTimeout(function(){ window.location.href = 'asset-detail.html'; }, 900);
+  });
+
+  console.log('[create-intent] v3 loaded · 3-step flow active');
+})();
+</script>
+</body>
+</html>

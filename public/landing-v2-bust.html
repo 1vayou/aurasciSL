@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Halftone Bust v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#f4ead8;color:#2a1a10;font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Paper grain */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.35;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.13  0 0 0 0 0.06  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* Vignette */
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(ellipse at 50% 60%,transparent 30%,rgba(58,36,24,0.16) 100%)}
+
+/* Top nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 40px;border-bottom:1px solid rgba(58,36,24,0.15)}
+nav .left{display:flex;flex-direction:column;gap:4px}
+nav .who{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.05em;color:rgba(58,36,24,0.6);display:flex;align-items:center;gap:8px}
+nav .who::before{content:'';width:14px;height:14px;border:1.5px solid rgba(58,36,24,0.55);border-radius:50%}
+nav .brand{font-family:'Instrument Serif',serif;font-style:italic;font-size:24px;letter-spacing:0.03em;color:#3a2418}
+nav .links{display:flex;gap:32px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:rgba(58,36,24,0.78);align-items:center}
+nav .links a{position:relative;padding-bottom:14px;border-bottom:1px solid transparent}
+nav .links a:hover{border-bottom-color:#c2410c;color:#c2410c}
+nav .links .muted{cursor:pointer;padding-bottom:14px;border-bottom:1px solid transparent}
+nav .links .muted:hover{color:#c2410c;border-bottom-color:#c2410c}
+#cs-toast{position:fixed;left:50%;bottom:48px;transform:translateX(-50%) translateY(8px);background:#1a1a1a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:12px 18px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 12px 30px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:200;display:flex;align-items:center;gap:10px}
+#cs-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#cs-toast::before{content:'';width:6px;height:6px;border-radius:50%;background:#c2410c;box-shadow:0 0 8px #c2410c}
+#cs-toast .lbl{color:#fed7aa;font-weight:600}
+nav .save{width:30px;height:30px;border:1.5px solid rgba(58,36,24,0.55);display:flex;align-items:center;justify-content:center;color:rgba(58,36,24,0.7)}
+
+/* Hero */
+.hero{position:relative;min-height:100vh;padding:120px 24px 130px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* Soft abstract portrait — backdrop only */
+.bust{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;
+  /* Heavy vertical fade — subject dissolves into background top + bottom */
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+  animation:drift 18s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.012)}}
+.bust canvas{width:70vw;max-width:760px;height:auto;
+  /* Heavy blur + low saturation — painterly, abstract, photographic-memory feel */
+  filter:blur(12px) saturate(0.85) contrast(0.92);
+  opacity:.85;
+  mix-blend-mode:multiply}
+
+/* Text */
+.tag{position:relative;z-index:3;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:rgba(194,65,12,0.85);margin-bottom:14px;display:inline-flex;gap:10px;align-items:center}
+.tag::before,.tag::after{content:'';width:24px;height:1px;background:rgba(194,65,12,0.5)}
+h1{position:relative;z-index:3;margin:0;font-family:'Newsreader',serif;font-weight:500;font-size:clamp(3rem,9.5vw,8rem);line-height:1.0;letter-spacing:-0.02em;text-align:center;color:#2a1a10;padding:0 4vw}
+h1 .em{font-style:italic;background:linear-gradient(135deg,#c2410c,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 .word{display:inline-block;position:relative}
+h1 .word::before,h1 .word::after{content:attr(data-text);position:absolute;inset:0;mix-blend-mode:multiply;pointer-events:none;opacity:0}
+h1 .word:hover::before{opacity:.8;color:#f97316;transform:translate(3px,0)}
+h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
+.sub{position:relative;z-index:3;margin:20px auto 6px;max-width:520px;text-align:center;font-size:16px;color:#5a3d2a;line-height:1.55}
+.kicker{position:relative;z-index:3;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;color:rgba(194,65,12,0.65);margin-bottom:32px}
+
+/* CTAs */
+.ctas{position:relative;z-index:3;display:flex;gap:14px;margin-top:8px}
+.btn{padding:14px 24px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:0;transition:all .25s;display:inline-flex;align-items:center;gap:10px;border-radius:6px}
+.btn-primary{background:#c2410c;color:#f7ecdf;border:1px solid #c2410c}
+.btn-primary:hover{background:#9a3412;box-shadow:0 8px 24px rgba(154,52,18,0.35);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:#3a2418;border:1px solid rgba(58,36,24,0.4)}
+.btn-ghost:hover{border-color:#3a2418;background:rgba(58,36,24,0.04)}
+
+/* Bottom corners */
+.corner-bl,.corner-br{position:fixed;bottom:24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:rgba(58,36,24,0.55);z-index:10;line-height:1.6;pointer-events:none}
+.corner-bl{left:40px;display:flex;align-items:flex-end;gap:14px}
+.corner-bl .bars{display:flex;gap:2px;align-items:flex-end;height:18px}
+.corner-bl .bars span{width:2px;background:rgba(194,65,12,0.7);animation:eq 1.4s ease-in-out infinite}
+.corner-bl .bars span:nth-child(1){height:40%;animation-delay:0s}
+.corner-bl .bars span:nth-child(2){height:80%;animation-delay:.15s}
+.corner-bl .bars span:nth-child(3){height:50%;animation-delay:.3s}
+.corner-bl .bars span:nth-child(4){height:100%;animation-delay:.45s}
+.corner-bl .bars span:nth-child(5){height:60%;animation-delay:.6s}
+@keyframes eq{50%{height:20%}}
+.corner-br{right:40px;text-align:right}
+.corner-br b{color:#3a2418;font-weight:500}
+.corner-br .blink{display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;margin-right:6px;animation:bl 1.6s ease-in-out infinite}
+@keyframes bl{50%{opacity:.3}}
+
+@media (max-width:720px){
+  nav{padding:18px 20px}nav .links{display:none}
+  .corner-bl,.corner-br{left:20px;right:20px;font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+
+<nav>
+  <div class="left">
+    <div class="who">aurasci/lab</div>
+    <div class="brand">AuraSci Studios</div>
+  </div>
+  <div class="links">
+    <a href="market.html">Market</a>
+    <a href="dashboard-patron.html">Portfolio</a>
+    <span class="muted">Governance</span>
+    <span class="muted">Leaderboard</span>
+  </div>
+  <div class="save">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="bust"><canvas id="halftone" width="900" height="900"></canvas></div>
+
+  <span class="tag">Defining the future · scaffolding science</span>
+
+  <h1>
+    <span class="word" data-text="Open">Open</span><br/>
+    <span class="em word" data-text="Science">Science</span>
+  </h1>
+
+  <p class="sub">From proof to capital — a milestone-based<br/>open science funding protocol.</p>
+  <div class="kicker">Scientists publish · AI verifies · Patrons fund · capital flows</div>
+
+  <div class="ctas">
+    <a class="btn btn-primary" href="onboarding-scientist.html">Start free trial →</a>
+    <a class="btn btn-ghost" href="market.html">View demo</a>
+  </div>
+</section>
+
+<div class="corner-bl">
+  <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+  <div>Est. 2024 / AuraSci Labs<br/>Vol. 094 · trust loop</div>
+</div>
+<div class="corner-br">
+  <span class="blink"></span>Status · live<br/><b>$420,000 USDC</b> escrowed
+</div>
+
+<script>
+/* Soft abstract portrait — 3/4 angle head & shoulders silhouette
+   in warm orange monochrome.  Painted with overlapping radial gradients
+   (no facial detail) and finished with film grain.  CSS blur + mask
+   handle the "fading photograph" feel.
+*/
+const cv=document.getElementById('halftone'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+
+/* Warm orange palette — light to dark */
+const C = {
+  bg:    '#f4ead8',
+  skin1: 'rgba(247,210,170,0.95)',
+  skin2: 'rgba(232,166,110,0.92)',
+  skin3: 'rgba(204,120,70,0.88)',
+  shad1: 'rgba(160,80,40,0.55)',
+  shad2: 'rgba(120,55,25,0.45)',
+  hair:  'rgba(110,55,28,0.78)',
+};
+
+/* Soft radial blob helper */
+function blob(c, x, y, r, color, alpha=1){
+  const g = c.createRadialGradient(x,y,0, x,y,r);
+  g.addColorStop(0, color);
+  g.addColorStop(1, 'rgba(244,234,216,0)');
+  c.globalAlpha = alpha;
+  c.fillStyle = g;
+  c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+  c.globalAlpha = 1;
+}
+
+/* Geometry — subject is a 3/4 view facing slightly to the viewer's left */
+const cx = W*0.50;          // overall centerline
+const headCx = W*0.51;      // head slightly right of center (3/4 turn)
+const headCy = H*0.36;
+const headRx = W*0.18;
+const headRy = H*0.22;
+
+ctx.clearRect(0,0,W,H);
+
+/* ---- 1. Shoulders + chest (broad warm wash) ---- */
+blob(ctx, W*0.30, H*0.95, W*0.55, C.skin2, 0.90);   // left shoulder
+blob(ctx, W*0.72, H*0.95, W*0.55, C.skin2, 0.90);   // right shoulder
+blob(ctx, W*0.50, H*0.85, W*0.42, C.skin1, 0.85);   // upper chest highlight
+/* Neck — a slimmer warm pillar */
+blob(ctx, cx,     H*0.66, W*0.13, C.skin2, 0.95);
+blob(ctx, cx,     H*0.72, W*0.16, C.skin3, 0.65);
+
+/* ---- 2. Head base — large soft warm ellipse ---- */
+/* Use multiple overlapping radial blobs to fake a painterly head */
+blob(ctx, headCx,           headCy,            headRx*1.35, C.skin2, 0.95);
+blob(ctx, headCx,           headCy,            headRx*0.95, C.skin1, 0.9);
+/* Lit side (right) — brighter */
+blob(ctx, headCx+headRx*0.35, headCy-headRy*0.15, headRx*0.65, C.skin1, 0.85);
+/* Shadow side (left) — deeper orange */
+blob(ctx, headCx-headRx*0.40, headCy+headRy*0.20, headRx*0.85, C.shad1, 0.55);
+blob(ctx, headCx-headRx*0.55, headCy+headRy*0.05, headRx*0.55, C.shad2, 0.45);
+
+/* ---- 3. Hair / top crown — darker warm tone, brushed back ---- */
+blob(ctx, headCx-headRx*0.05, headCy-headRy*0.85, headRx*1.10, C.hair, 0.75);
+blob(ctx, headCx-headRx*0.40, headCy-headRy*0.55, headRx*0.55, C.hair, 0.65);
+blob(ctx, headCx+headRx*0.40, headCy-headRy*0.55, headRx*0.55, C.hair, 0.55);
+/* tiny strands fading sideways */
+blob(ctx, headCx-headRx*0.95, headCy-headRy*0.20, headRx*0.30, C.hair, 0.40);
+blob(ctx, headCx+headRx*0.95, headCy-headRy*0.20, headRx*0.28, C.hair, 0.35);
+
+/* ---- 4. Jawline shadow under chin (soft, no hard line) ---- */
+blob(ctx, cx, H*0.58, W*0.16, C.shad1, 0.45);
+blob(ctx, cx-W*0.04, H*0.60, W*0.10, C.shad2, 0.35);
+
+/* ---- 5. Faint cheekbone lift on lit side ---- */
+blob(ctx, headCx+headRx*0.30, headCy+headRy*0.20, headRx*0.30, C.skin1, 0.55);
+
+/* ---- 6. Background atmosphere wash — warm orange aura behind head ---- */
+const aura = ctx.createRadialGradient(headCx, headCy, 0, headCx, headCy, W*0.55);
+aura.addColorStop(0, 'rgba(249,180,120,0.18)');
+aura.addColorStop(0.6, 'rgba(244,234,216,0)');
+aura.addColorStop(1, 'rgba(244,234,216,0)');
+ctx.globalCompositeOperation = 'multiply';
+ctx.fillStyle = aura;
+ctx.fillRect(0,0,W,H);
+ctx.globalCompositeOperation = 'source-over';
+
+/* ---- 7. Film grain overlay (very light) ---- */
+const grain = ctx.getImageData(0,0,W,H);
+const d = grain.data;
+for(let i=0;i<d.length;i+=4){
+  const n = (Math.random()-0.5)*16;
+  d[i]   = Math.max(0, Math.min(255, d[i]   + n));
+  d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+  d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+}
+ctx.putImageData(grain, 0, 0);
+</script>
+
+<script src="coming-soon.js?v=3"></script>
+
+</body>
+</html>

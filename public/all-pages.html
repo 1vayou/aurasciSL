@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Static HTML Mocks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared.css?v=2" />
+<style>
+  body { background: #f7ecdf; }
+  .page { padding: 64px 24px; min-height: 100vh; }
+  .page-inner { max-width: 1200px; margin: 0 auto; }
+  .head { text-align: center; margin-bottom: 56px; }
+  .head .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    border: 1px solid var(--orange-200);
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+    margin-bottom: 24px;
+  }
+  .head .badge span { font-size: 11px; font-weight: 500; color: var(--orange-700); letter-spacing: 0.1em; text-transform: uppercase; }
+  .head h1 {
+    font-family: 'Instrument Serif', serif; font-weight: 600; letter-spacing: -0.03em;
+    color: #3a2418; margin: 0 0 12px;
+    font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1;
+  }
+  .head h1 .grad {
+    font-style: italic;
+    background: linear-gradient(to right, #f97316, #fb923c);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .head p { font-size: 15px; color: #5a3d2a; max-width: 640px; margin: 0 auto; line-height: 1.6; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+
+  .card {
+    border-radius: 16px; border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+    overflow: hidden; transition: all .3s;
+    box-shadow: 0 8px 30px rgba(249,115,22,0.10);
+    text-decoration: none; color: inherit; display: block;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--orange-300); box-shadow: 0 16px 40px rgba(249,115,22,0.18); }
+
+  .thumb {
+    height: 160px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--orange-50), #fffbeb);
+    border-bottom: 1px solid var(--orange-100);
+  }
+  .thumb-grid { position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(249,115,22,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(249,115,22,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .thumb-icon { position: relative; z-index: 1; width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, #f97316, #fb923c); color: white;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+  }
+  .thumb.green .thumb-icon { background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 8px 24px rgba(16,185,129,0.35); }
+  .thumb.amber .thumb-icon { background: linear-gradient(135deg, #f59e0b, #fb923c); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+
+  .body { padding: 20px 24px 24px; }
+  .body .role-tag {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--orange-600); margin-bottom: 8px;
+  }
+  .body .role-tag.green { color: var(--emerald-600); }
+  .body .role-tag.amber { color: #b45309; }
+  .body h3 { font-size: 18px; font-weight: 700; color: var(--gray-900); margin: 0 0 6px; letter-spacing: -0.01em; }
+  .body p { font-size: 13px; color: var(--gray-600); line-height: 1.5; margin: 0 0 14px; }
+  .body .open {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: var(--orange-600);
+  }
+
+  footer { margin-top: 64px; text-align: center; font-size: 12px; color: rgba(58,36,24,0.5); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="page-inner">
+    <div class="head">
+      <div class="badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>Static HTML Mocks · 7 Pages</span>
+      </div>
+      <h1>AuraSci <span class="grad">Page Index</span></h1>
+      <p>Static HTML mockups derived from the Next.js MVP. Click any card to open the standalone page.</p>
+    </div>
+
+    <div class="grid">
+
+      <a class="card" href="landing.html">
+        <div class="thumb">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag">Landing · /</span>
+          <h3>From Proof to Capital</h3>
+          <p>Hero with halftone bust, dual entry cards for Scientist and Patron flows.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="market.html">
+        <div class="thumb">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag">Market · /market</span>
+          <h3>Discover AI-Verified Research</h3>
+          <p>Intent cards grid, season leaderboard, live activity feed sidebar.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="intent-detail.html">
+        <div class="thumb">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag">Detail · /intent/[id]</span>
+          <h3>Intent Detail · $CELL-01</h3>
+          <p>Funding ring, 6-step milestone timeline, milestone details and patronage panel.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="onboarding-scientist.html">
+        <div class="thumb green">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag green">Scientist · /onboarding/scientist</span>
+          <h3>Scientist Onboarding</h3>
+          <p>OAuth (GitHub / ORCID) connect, Lab Profile form with bio.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="dashboard-scientist.html">
+        <div class="thumb amber">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag amber">Scientist · /dashboard/scientist</span>
+          <h3>Scientist Dashboard</h3>
+          <p>Pending Review banner, Lab Profile readout, action cards.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="create-intent.html">
+        <div class="thumb">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag">Scientist · /intent/create</span>
+          <h3>Create Intent Asset</h3>
+          <p>3-step wizard, milestone editor, resource asks selector, ticker preview.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+      <a class="card" href="dashboard-patron.html">
+        <div class="thumb">
+          <div class="thumb-grid"></div>
+          <div class="thumb-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+        </div>
+        <div class="body">
+          <span class="role-tag">Patron · /dashboard/patron</span>
+          <h3>Patron Portfolio</h3>
+          <p>KPI stats, funded holdings list with milestone timelines, Aura allocation.</p>
+          <span class="open">Open page →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <footer>AuraSci · Static mocks · 橙暖 + 通透白 · 单 HTML 文件可独立打开</footer>
+  </div>
+</div>
+
+<script src="coming-soon.js?v=3"></script>
+</body>
+</html>
