@@ -88,9 +88,82 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
 .corner-br .blink{display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;margin-right:6px;animation:bl 1.6s ease-in-out infinite}
 @keyframes bl{50%{opacity:.3}}
 
+/* Breathing scroll cue */
+.scroll-cue{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(58,36,24,0.55);text-decoration:none;animation:cue-breath 2.4s ease-in-out infinite}
+.scroll-cue .cue-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase}
+.scroll-cue .cue-arrow{width:34px;height:34px;border-radius:50%;border:1px solid rgba(58,36,24,0.3);display:flex;align-items:center;justify-content:center;transition:all .3s}
+.scroll-cue:hover{color:#c2410c}
+.scroll-cue:hover .cue-arrow{border-color:#c2410c;background:rgba(254,215,170,0.4)}
+@keyframes cue-breath{0%,100%{transform:translateX(-50%) translateY(0);opacity:.55}50%{transform:translateX(-50%) translateY(8px);opacity:1}}
+
+/* Role pick section */
+.role-pick{position:relative;z-index:3;padding:80px 24px 120px;max-width:1100px;margin:0 auto}
+.role-pick .anchor{position:absolute;top:-80px}
+.role-pick .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#c2410c;text-align:center;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:12px}
+.role-pick .eyebrow::before,.role-pick .eyebrow::after{content:'';width:28px;height:1px;background:rgba(194,65,12,0.5)}
+.role-pick h2{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2rem,4vw,3rem);text-align:center;margin:0 0 12px;letter-spacing:-0.01em;color:#2a1a10;line-height:1.1}
+.role-pick h2 em{font-style:italic;color:#c2410c}
+.role-pick .lead{text-align:center;font-size:15px;color:#5a3d2a;max-width:560px;margin:0 auto 50px;line-height:1.6}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;perspective:1400px}
+@media(max-width:780px){.role-grid{grid-template-columns:1fr}}
+
+/* Role card — editorial spread, asymmetric, tactile */
+.role-card{position:relative;border:1px solid rgba(58,36,24,0.22);padding:0;border-radius:6px;text-decoration:none;color:inherit;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s;display:flex;flex-direction:column;overflow:hidden;background:#fdfcf8;min-height:480px}
+.role-card.sci{background:linear-gradient(160deg,#f5ecd8 0%,#fdfcf8 60%)}
+.role-card.pat{background:linear-gradient(160deg,#fbe9d2 0%,#fdfcf8 60%)}
+
+/* Layered backdrop: number, blueprint grid, tonal smear */
+.role-card .bignum{display:none}
+.role-card.sci .bignum{color:rgba(77,124,15,0.08)}
+.role-card.pat .bignum{color:rgba(194,65,12,0.08)}
+.role-card .grid-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(58,36,24,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(58,36,24,0.06) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,transparent 0%,#000 25%,#000 80%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 25%,#000 80%,transparent 100%);opacity:.7}
+.role-card .smear{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;transition:transform .8s ease}
+.role-card.sci .smear{background:#bef264;top:-60px;left:-40px}
+.role-card.pat .smear{background:#fdba74;bottom:-50px;right:-30px}
+
+.role-card .inner{position:relative;z-index:2;padding:34px 32px 30px;display:flex;flex-direction:column;gap:18px;flex:1}
+
+/* Header strip */
+.role-card .strip{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:18px;border-bottom:1px dashed rgba(58,36,24,0.25)}
+.role-card .ico{width:54px;height:54px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#fdfcf8;border:1px solid rgba(58,36,24,0.18);color:#c2410c;box-shadow:0 4px 12px -4px rgba(58,36,24,0.18);transition:transform .35s}
+.role-card.sci .ico{color:#4d7c0f}
+.role-card:hover .ico{transform:rotate(-6deg) scale(1.05)}
+.role-card .role-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(58,36,24,0.55);display:flex;align-items:center;gap:8px}
+.role-card .role-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#c2410c}
+.role-card.sci .role-tag::before{background:#65a30d}
+
+.role-card h3{font-family:'Newsreader',serif;font-weight:500;font-size:38px;margin:6px 0 0;letter-spacing:-0.015em;color:#2a1a10;line-height:1.05}
+.role-card h3 em{font-style:italic;color:#c2410c}
+.role-card.sci h3 em{color:#4d7c0f}
+.role-card p{margin:0;font-size:14px;line-height:1.65;color:#5a3d2a;max-width:90%}
+
+/* Feature rows — numbered, monospace */
+.role-card ul{list-style:none;padding:0;margin:auto 0 0;display:flex;flex-direction:column}
+.role-card ul li{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid rgba(58,36,24,0.10);font-family:'JetBrains Mono',monospace;font-size:12px;color:#3a2418;letter-spacing:0.02em;transition:padding-left .25s}
+.role-card ul li:last-child{border-bottom:1px solid rgba(58,36,24,0.10)}
+.role-card ul li .num{font-size:10px;color:rgba(58,36,24,0.45);min-width:20px;letter-spacing:0.1em}
+.role-card ul li .lbl{flex:1}
+.role-card ul li .dot{width:6px;height:6px;border-radius:50%;background:#c2410c;opacity:.6;transition:transform .25s,opacity .25s}
+.role-card.sci ul li .dot{background:#65a30d}
+.role-card:hover ul li{padding-left:6px}
+.role-card:hover ul li .dot{transform:scale(1.6);opacity:1}
+
+/* CTA bar at bottom */
+.role-card .cta-bar{position:relative;z-index:2;margin-top:auto;padding:18px 32px;background:rgba(58,36,24,0.04);border-top:1px solid rgba(58,36,24,0.12);display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#c2410c;transition:background .3s}
+.role-card.sci .cta-bar{color:#4d7c0f}
+.role-card .cta-bar .arr{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#2a1a10;color:#faf3e3;transition:transform .3s,background .3s}
+.role-card.sci .cta-bar .arr{background:#4d7c0f}
+.role-card.pat .cta-bar .arr{background:#c2410c}
+.role-card:hover{transform:translateY(-6px);box-shadow:0 28px 50px -18px rgba(58,36,24,0.28);border-color:rgba(194,65,12,0.5)}
+.role-card.sci:hover{border-color:rgba(77,124,15,0.5)}
+.role-card:hover .cta-bar{background:rgba(58,36,24,0.07)}
+.role-card:hover .cta-bar .arr{transform:translateX(6px) rotate(-8deg)}
+.role-card:hover .bignum{transform:translate(-8px,4px) rotate(-2deg)}
+.role-card:hover .smear{transform:scale(1.2)}
 @media (max-width:720px){
   nav{padding:18px 20px}nav .links{display:none}
   .corner-bl,.corner-br{left:20px;right:20px;font-size:9px}
+  .role-pick{padding:50px 20px 100px}
 }
 </style>
 </head>
@@ -109,9 +182,7 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
     <span class="muted">Governance</span>
     <span class="muted">Leaderboard</span>
   </div>
-  <div class="save">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-  </div>
+
 </nav>
 
 <section class="hero">
@@ -128,8 +199,75 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
   <div class="kicker">Scientists publish · AI verifies · Patrons fund · capital flows</div>
 
   <div class="ctas">
-    <a class="btn btn-primary" href="onboarding-scientist.html">Start free trial →</a>
-    <a class="btn btn-ghost" href="market.html">View demo</a>
+    <a class="btn btn-primary" href="onboarding-scientist.html">Verify as a scientist →</a>
+    <a class="btn btn-ghost" href="market.html">Explore the market</a>
+  </div>
+
+  <a class="scroll-cue" href="#choose-role" aria-label="Scroll to role pick">
+    <span class="cue-label">scroll</span>
+    <span class="cue-arrow">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </span>
+  </a>
+</section>
+
+<!-- ============ ROLE PICK ============ -->
+<section class="role-pick">
+  <div class="anchor" id="choose-role"></div>
+  <div class="eyebrow">Two paths · one trust loop</div>
+  <h2>Are you a <em>scientist</em> or a <em>patron</em>?</h2>
+  <p class="lead">Whichever side you're on, AuraSci handles the verification, escrow, and milestone-based capital flow. Pick your starting point.</p>
+
+  <div class="role-grid">
+    <a class="role-card sci" href="onboarding-scientist.html">
+      <span class="bignum">01</span>
+      <span class="grid-bg"></span>
+      <span class="smear"></span>
+      <div class="inner">
+        <div class="strip">
+          <div class="ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4l5 9c.7 1.3-.3 3-1.8 3H5.8c-1.5 0-2.5-1.7-1.8-3l5-9V3z"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+          </div>
+          <div class="role-tag">For Scientists</div>
+        </div>
+        <h3>I'm a <em>scientist</em></h3>
+        <p>Publish research intent, set milestones, submit proof of progress, and receive milestone-based patronage for breakthrough work.</p>
+        <ul>
+          <li><span class="num">01</span><span class="lbl">Publish intent assets</span><span class="dot"></span></li>
+          <li><span class="num">02</span><span class="lbl">AI-verified milestones</span><span class="dot"></span></li>
+          <li><span class="num">03</span><span class="lbl">Milestone-based funding</span><span class="dot"></span></li>
+        </ul>
+      </div>
+      <div class="cta-bar">
+        <span>Start publishing →</span>
+        <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+      </div>
+    </a>
+
+    <a class="role-card pat" href="market.html">
+      <span class="bignum">02</span>
+      <span class="grid-bg"></span>
+      <span class="smear"></span>
+      <div class="inner">
+        <div class="strip">
+          <div class="ico">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><line x1="2" y1="9" x2="22" y2="9"/></svg>
+          </div>
+          <div class="role-tag">For Patrons</div>
+        </div>
+        <h3>I'm a <em>patron</em></h3>
+        <p>Browse AI-verified research intents, provide patronage to promising science, and track milestone-based progress of funded projects.</p>
+        <ul>
+          <li><span class="num">01</span><span class="lbl">Browse verified research</span><span class="dot"></span></li>
+          <li><span class="num">02</span><span class="lbl">Escrow-protected patronage</span><span class="dot"></span></li>
+          <li><span class="num">03</span><span class="lbl">AI trust loop verification</span><span class="dot"></span></li>
+        </ul>
+      </div>
+      <div class="cta-bar">
+        <span>Explore market →</span>
+        <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+      </div>
+    </a>
   </div>
 </section>
 
