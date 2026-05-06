@@ -20,7 +20,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;op
   background:radial-gradient(ellipse at 50% 60%,transparent 30%,rgba(58,36,24,0.16) 100%)}
 
 /* Top nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 40px;border-bottom:1px solid rgba(58,36,24,0.15)}
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 40px;border-bottom:1px solid rgba(58,36,24,0.15);background:#f4ead8;box-shadow:0 1px 0 rgba(58,36,24,0.04)}
 nav .left{display:flex;flex-direction:column;gap:4px}
 nav .who{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.05em;color:rgba(58,36,24,0.6);display:flex;align-items:center;gap:8px}
 nav .who::before{content:'';width:14px;height:14px;border:1.5px solid rgba(58,36,24,0.55);border-radius:50%}
@@ -173,8 +173,7 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
 
 <nav>
   <div class="left">
-    <div class="who">aurasci/lab</div>
-    <div class="brand">AuraSci Studios</div>
+    <div class="brand">AuraSci</div>
   </div>
   <div class="links">
     <a href="market.html">Market</a>
@@ -195,12 +194,12 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
     <span class="em word" data-text="Science">Science</span>
   </h1>
 
-  <p class="sub">From proof to capital — a milestone-based<br/>open science funding protocol.</p>
+  <p class="sub">The Agent-Native Infrastructure for Open Science.</p>
   <div class="kicker">Scientists publish · AI verifies · Patrons fund · capital flows</div>
 
   <div class="ctas">
     <a class="btn btn-primary" href="onboarding-scientist.html">Verify as a scientist →</a>
-    <a class="btn btn-ghost" href="market.html">Explore the market</a>
+    <a class="btn btn-ghost" href="market.html">Browse the market</a>
   </div>
 
   <a class="scroll-cue" href="#choose-role" aria-label="Scroll to role pick">
@@ -244,7 +243,7 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
       </div>
     </a>
 
-    <a class="role-card pat" href="market.html">
+    <a class="role-card pat" href="dashboard-patron.html">
       <span class="bignum">02</span>
       <span class="grid-bg"></span>
       <span class="smear"></span>
@@ -264,7 +263,7 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
         </ul>
       </div>
       <div class="cta-bar">
-        <span>Explore market →</span>
+        <span>Open my portfolio →</span>
         <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
       </div>
     </a>
@@ -273,7 +272,7 @@ h1 .word:hover::after{opacity:.6;color:#0891b2;transform:translate(-3px,0)}
 
 <div class="corner-bl">
   <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
-  <div>Est. 2024 / AuraSci Labs<br/>Vol. 094 · trust loop</div>
+  <div>Est. 2023 / AuraSci</div>
 </div>
 <div class="corner-br">
   <span class="blink"></span>Status · live<br/><b>$420,000 USDC</b> escrowed

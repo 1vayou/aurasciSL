@@ -77,6 +77,11 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 .review-row .d{flex:1;color:var(--ink)}
 .review-row .a{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
 
+/* contenteditable affordance — subtle until hovered */
+[contenteditable="true"]{cursor:text;border-radius:3px;transition:background .15s,box-shadow .15s;padding:1px 4px;margin:-1px -4px}
+[contenteditable="true"]:hover{background:rgba(254,215,170,0.30)}
+[contenteditable="true"]:focus{outline:none;background:#fffaee;box-shadow:inset 0 0 0 1.5px var(--rust)}
+
 .attest{margin:18px 0 6px;padding:16px;border-radius:6px;background:rgba(101,163,13,0.06);border:1px solid rgba(101,163,13,0.30);display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#3f5e0d;line-height:1.6;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;text-transform:none}
 .attest input{margin-top:3px;accent-color:#65a30d;flex:none}
 
@@ -153,8 +158,7 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 
 <nav class="bnav">
   <div class="left">
-    <div class="who">aurasci/lab</div>
-    <a class="brand" href="landing-v2-bust.html">AuraSci Studios</a>
+    <a class="brand" href="landing-v2-bust.html">AuraSci</a>
   </div>
   <div class="links">
     <a href="market.html">Market</a>
@@ -235,16 +239,16 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
           </div>
           <div class="field" style="margin-bottom:12px">
             <label>Description</label>
-            <input class="input" type="text" value="Compile comprehensive senescent cell biomarker dataset from cardiac tissue samples" />
+            <input class="input" type="text" id="f-m1-desc" value="Compile comprehensive senescent cell biomarker dataset from cardiac tissue samples" />
           </div>
           <div class="ms-row">
             <div class="field" style="margin-bottom:0">
               <label>Verification criteria</label>
-              <input class="input" type="text" value="Dataset passes quality audit · >95% annotation accuracy" />
+              <input class="input" type="text" id="f-m1-crit" value="Dataset passes quality audit · >95% annotation accuracy" />
             </div>
             <div class="field" style="margin-bottom:0">
               <label>Release amount (USDC)</label>
-              <input class="input" type="number" value="40000" />
+              <input class="input" type="number" id="f-m1-amt" value="40000" />
             </div>
           </div>
         </div>
@@ -258,16 +262,16 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
           </div>
           <div class="field" style="margin-bottom:12px">
             <label>Description</label>
-            <input class="input" type="text" value="Demonstrate selective senescent cell clearance in vitro cardiac tissue models" />
+            <input class="input" type="text" id="f-m2-desc" value="Demonstrate selective senescent cell clearance in vitro cardiac tissue models" />
           </div>
           <div class="ms-row">
             <div class="field" style="margin-bottom:0">
               <label>Verification criteria</label>
-              <input class="input" type="text" value="Peer-reviewed preprint · reproducible protocol on bioRxiv" />
+              <input class="input" type="text" id="f-m2-crit" value="Peer-reviewed preprint · reproducible protocol on bioRxiv" />
             </div>
             <div class="field" style="margin-bottom:0">
               <label>Release amount (USDC)</label>
-              <input class="input" type="number" value="55000" />
+              <input class="input" type="number" id="f-m2-amt" value="55000" />
             </div>
           </div>
         </div>
@@ -281,16 +285,16 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
           </div>
           <div class="field" style="margin-bottom:12px">
             <label>Description</label>
-            <input class="input" type="text" value="Validate cardiac function recovery in murine model post senolytic treatment" />
+            <input class="input" type="text" id="f-m3-desc" value="Validate cardiac function recovery in murine model post senolytic treatment" />
           </div>
           <div class="ms-row">
             <div class="field" style="margin-bottom:0">
               <label>Verification criteria</label>
-              <input class="input" type="text" value="Echocardiogram + histology · ≥30% fibrosis reduction (n≥12)" />
+              <input class="input" type="text" id="f-m3-crit" value="Echocardiogram + histology · ≥30% fibrosis reduction (n≥12)" />
             </div>
             <div class="field" style="margin-bottom:0">
               <label>Release amount (USDC)</label>
-              <input class="input" type="number" value="35000" />
+              <input class="input" type="number" id="f-m3-amt" value="35000" />
             </div>
           </div>
         </div>
@@ -325,8 +329,8 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 
         <div class="preview-box">
           <div class="l">Auto-generated asset ticker</div>
-          <div class="preview-ticker">$CELL-01</div>
-          <div class="preview-meta">Total ask · $130,000 USDC · 03 milestones · season 094</div>
+          <div class="preview-ticker" id="prev-ticker">$CELL-01</div>
+          <div class="preview-meta" id="prev-meta">Total ask · $130,000 USDC · 03 milestones · season 094</div>
         </div>
 
         <div class="form-foot">
@@ -343,41 +347,47 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
           Review and submit for Setu inscription
         </h2>
 
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:0.06em;margin:0 0 16px">Editable preview · changes here sync back to step 01 / 02.</p>
+
         <div class="review-grid">
           <div class="review-cell">
             <div class="k">Ticker</div>
-            <div class="v" style="font-family:'JetBrains Mono',monospace;font-weight:700">$CELL-01</div>
+            <div class="v" id="r-ticker" style="font-family:'JetBrains Mono',monospace;font-weight:700" contenteditable="true">$CELL-01</div>
           </div>
           <div class="review-cell">
             <div class="k">Total ask</div>
-            <div class="v">$130,000 USDC</div>
+            <div class="v" id="r-total">$130,000 USDC</div>
           </div>
           <div class="review-cell">
             <div class="k">Title</div>
-            <div class="v" id="r-title">Targeting senescent cells to reverse cardiac fibrosis</div>
+            <div class="v" id="r-title" contenteditable="true">Targeting senescent cells to reverse cardiac fibrosis</div>
           </div>
           <div class="review-cell">
+            <div class="k">Hypothesis</div>
+            <div class="v" id="r-hyp" contenteditable="true" style="font-size:14px;line-height:1.5">—</div>
+          </div>
+          <div class="review-cell" style="grid-column:1 / -1">
             <div class="k">Season · review SLA</div>
             <div class="v">094 · ≤ 48 h</div>
           </div>
         </div>
 
         <div class="review-list">
-          <div class="k">Milestones · 03</div>
+          <div class="k">Milestones · <span id="r-ms-count">03</span></div>
           <div class="review-row">
             <div class="l">M1</div>
-            <div class="d">Compile senescent cell biomarker dataset</div>
-            <div class="a">$40k</div>
+            <div class="d" id="r-m1-desc" contenteditable="true">Compile senescent cell biomarker dataset</div>
+            <div class="a" id="r-m1-amt" contenteditable="true">$40k</div>
           </div>
           <div class="review-row">
             <div class="l">M2</div>
-            <div class="d">In vitro selective senescent cell clearance</div>
-            <div class="a">$55k</div>
+            <div class="d" id="r-m2-desc" contenteditable="true">In vitro selective senescent cell clearance</div>
+            <div class="a" id="r-m2-amt" contenteditable="true">$55k</div>
           </div>
           <div class="review-row">
             <div class="l">M3</div>
-            <div class="d">Murine model · ≥30% fibrosis reduction</div>
-            <div class="a">$35k</div>
+            <div class="d" id="r-m3-desc" contenteditable="true">Murine model · ≥30% fibrosis reduction</div>
+            <div class="a" id="r-m3-amt" contenteditable="true">$35k</div>
           </div>
         </div>
 
@@ -486,7 +496,7 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 
 <div class="bcorner-bl">
   <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
-  <div id="bl-meta">Draft · $CELL-01<br/>Vol. 094 · trust loop</div>
+  <div id="bl-meta">Draft · $CELL-01<br/></div>
 </div>
 <div class="bcorner-br" id="br-status">
   <span class="blink"></span>Step · <b id="br-step">01/04</b><br/><b>$130,000 USDC</b> total ask
@@ -495,7 +505,78 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 <script src="coming-soon.js?v=3"></script>
 <script>
 (function(){
+  function $(id){ return document.getElementById(id); }
+  function fmtUSDC(n){
+    if (!isFinite(n)) n = 0;
+    return '$' + n.toLocaleString('en-US') + ' USDC';
+  }
+  function fmtShort(n){
+    if (!isFinite(n)) n = 0;
+    return '$' + Math.round(n / 1000) + 'k';
+  }
+  function parseShort(s){
+    var m = String(s||'').replace(/,/g,'').match(/(\d+(?:\.\d+)?)\s*([kKmM])?/);
+    if (!m) return 0;
+    var v = parseFloat(m[1]);
+    if (m[2] === 'k' || m[2] === 'K') v *= 1000;
+    if (m[2] === 'm' || m[2] === 'M') v *= 1e6;
+    return v;
+  }
+  function tickerFromTitle(title){
+    var w = String(title||'').match(/[A-Za-z]{3,}/g) || [];
+    var stop = ['the','and','for','with','from','that','this','open','science'];
+    w = w.filter(function(x){ return stop.indexOf(x.toLowerCase()) < 0; });
+    var pick = (w[0] || 'asset').slice(0,4).toUpperCase();
+    return '$' + pick + '-01';
+  }
+  function totalAmt(){
+    return [1,2,3].reduce(function(s,i){
+      var el = $('f-m' + i + '-amt');
+      return s + (el ? +el.value || 0 : 0);
+    }, 0);
+  }
+
+  // Step 02 preview box stays in sync with title + amounts
+  function updatePreview(){
+    var t  = totalAmt();
+    var tk = tickerFromTitle($('f-title').value);
+    if ($('prev-ticker')) $('prev-ticker').textContent = tk;
+    if ($('prev-meta'))   $('prev-meta').textContent =
+      'Total ask · ' + fmtUSDC(t) + ' · 03 milestones · season 094';
+  }
+  ['f-title','f-m1-amt','f-m2-amt','f-m3-amt'].forEach(function(id){
+    var el = $(id); if (el) el.addEventListener('input', updatePreview);
+  });
+  updatePreview();
+
+  // Push step 01/02 → step 03 review cells
+  function pushToReview(){
+    $('r-title').textContent  = $('f-title').value || '—';
+    $('r-hyp').textContent    = $('f-hyp').value   || '—';
+    $('r-ticker').textContent = tickerFromTitle($('f-title').value);
+    $('r-total').textContent  = fmtUSDC(totalAmt());
+    [1,2,3].forEach(function(i){
+      $('r-m' + i + '-desc').textContent = $('f-m' + i + '-desc').value || '—';
+      $('r-m' + i + '-amt').textContent  = fmtShort(+$('f-m' + i + '-amt').value || 0);
+    });
+  }
+
+  // Pull review-pane edits → step 01/02 inputs (called when leaving step 3)
+  function pullFromReview(){
+    $('f-title').value = ($('r-title').textContent || '').trim();
+    $('f-hyp').value   = ($('r-hyp').textContent   || '').trim();
+    [1,2,3].forEach(function(i){
+      $('f-m' + i + '-desc').value = ($('r-m' + i + '-desc').textContent || '').trim();
+      $('f-m' + i + '-amt').value  = parseShort($('r-m' + i + '-amt').textContent);
+    });
+    updatePreview();
+  }
+
   function setStep(n){
+    var prevActive = document.querySelector('[data-pane].active');
+    var prev = prevActive ? +prevActive.dataset.pane : 0;
+    if (prev === 3 && n !== 3) pullFromReview();
+
     document.querySelectorAll('[data-pane]').forEach(function(p){
       p.classList.toggle('active', +p.dataset.pane === n);
     });
@@ -508,18 +589,17 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
       var from = +l.dataset.line.split('-')[0];
       l.classList.toggle('done', from < n);
     });
-    document.getElementById('br-step').textContent =
-      String(n).padStart(2,'0') + '/04';
-    var meta = document.getElementById('bl-meta');
+    $('br-step').textContent = String(n).padStart(2,'0') + '/04';
+    var meta = $('bl-meta');
     if (meta) {
+      var tk = tickerFromTitle($('f-title').value);
       meta.innerHTML = (n === 4)
-        ? 'Publishing · $CELL-01<br/>Setu network · live'
-        : 'Draft · $CELL-01<br/>Vol. 094 · trust loop';
+        ? 'Publishing · ' + tk + '<br/>Setu network · live'
+        : 'Draft · ' + tk;
     }
+
+    if (n === 3) pushToReview();
     if (n === 4) { window.__startSetuPublish && window.__startSetuPublish(); }
-    // sync title into review pane
-    document.getElementById('r-title').textContent =
-      document.getElementById('f-title').value || '—';
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
