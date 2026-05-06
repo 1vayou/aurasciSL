@@ -302,11 +302,10 @@
     document.querySelectorAll('.as-login-link').forEach(function (n) { n.remove(); });
 
     // Always hide the original Portfolio link in the nav (logged-in users
-    // reach it via the user-menu instead). Only write when not already
-    // hidden so the assignment doesn't churn the style attribute and feed
-    // the MutationObserver another mutation.
+    // reach it via the user-menu instead). Direct `> a` only — otherwise
+    // we'd also hide the Portfolio entry we put inside our own dropdown.
     document.querySelectorAll(
-      '.bnav .links a[href="dashboard-patron.html"], nav .links a[href="dashboard-patron.html"]'
+      '.bnav .links > a[href="dashboard-patron.html"], nav .links > a[href="dashboard-patron.html"]'
     ).forEach(function (a) {
       if (a.style.display !== 'none') a.style.display = 'none';
     });
