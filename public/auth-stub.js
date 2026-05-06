@@ -18,12 +18,10 @@
     if (document.getElementById('as-stub-styles')) return;
     const css = `
       /* === Nav login CTA ===
-         Nav links have `padding-bottom:14px` (for the hover underline) and no
-         top padding, so their text sits flush with the top of the .links box.
-         We mimic that geometry on the button: text flush with the top, with
-         the button's own visual height coming from symmetric padding plus an
-         equal negative margin-top so the button's text-line lines up with the
-         link text-line under `align-items:center`. */
+         Nav links use padding-bottom:14px (for the hover underline) and no
+         top padding, so their text sits flush with the top. We give the
+         button line-height:1 plus a negative margin-top so its text-line
+         lines up with the link text-line under align-items:center. */
       .as-nav-login{appearance:none;-webkit-appearance:none;
         padding:7px 18px;border-radius:6px;background:#c2410c;color:#faf3e3;
         border:1px solid #c2410c;font-family:'Inter',sans-serif;font-size:13px;
