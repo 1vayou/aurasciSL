@@ -17,16 +17,26 @@
   function ensureStyles() {
     if (document.getElementById('as-stub-styles')) return;
     const css = `
+      /* === Nav baseline alignment fix === */
+      .bnav .links,nav .links{align-items:baseline}
+
       /* === Nav login CTA === */
       .as-nav-login{appearance:none;-webkit-appearance:none;
-        padding:9px 20px;border-radius:6px;background:#c2410c;color:#faf3e3;
+        padding:7px 18px;border-radius:6px;background:#c2410c;color:#faf3e3;
         border:1px solid #c2410c;font-family:'Inter',sans-serif;font-size:13px;
         font-weight:600;letter-spacing:0.01em;cursor:pointer;
-        transition:background .2s,box-shadow .2s,transform .2s;
+        transition:background .2s,border-color .2s,box-shadow .2s,transform .2s;
         display:inline-flex;align-items:center;gap:8px;
-        margin-left:8px;align-self:center;text-decoration:none}
+        margin-left:16px;text-decoration:none;vertical-align:baseline;
+        position:relative;top:-1px}
       .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
         box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
+      /* Portfolio state — outline style */
+      .as-nav-cta[data-as-state="authed"]{
+        background:transparent;color:#c2410c;border-color:rgba(194,65,12,0.4)}
+      .as-nav-cta[data-as-state="authed"]:hover{
+        background:rgba(254,215,170,0.30);border-color:#c2410c;
+        box-shadow:0 4px 12px rgba(154,52,18,0.14);transform:translateY(-1px)}
 
       /* === Modal === */
       .as-modal-bd{position:fixed;inset:0;z-index:9000;background:rgba(42,26,16,0.55);
@@ -230,26 +240,36 @@
     ensureStyles();
     const authed = isAuthed();
 
-    // Clean up the previous in-line "Login" twin if it ever got injected
+    // Clean up legacy login twins
     document.querySelectorAll('.as-login-link').forEach(function (n) { n.remove(); });
 
-    // Find every Portfolio link in a top nav
-    const portfolioLinks = document.querySelectorAll(
+    // Always hide the original Portfolio link — we show it at the far right instead
+    document.querySelectorAll(
       '.bnav .links a[href="dashboard-patron.html"], nav .links a[href="dashboard-patron.html"]'
-    );
-    portfolioLinks.forEach(function (a) {
-      a.style.display = authed ? '' : 'none';
-      const linksGroup = a.parentNode;
-      let cta = linksGroup.querySelector('.as-nav-login');
+    ).forEach(function (a) { a.style.display = 'none'; });
+
+    // Inject / update the far-right CTA in every nav links group
+    document.querySelectorAll('.bnav .links, nav .links').forEach(function (linksGroup) {
+      var cta = linksGroup.querySelector('.as-nav-cta');
       if (!cta) {
-        cta = document.createElement('button');
-        cta.type = 'button';
-        cta.className = 'as-nav-login';
-        cta.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>Login</span>';
-        cta.addEventListener('click', openModal);
+        cta = document.createElement('a');
+        cta.className = 'as-nav-login as-nav-cta';
         linksGroup.appendChild(cta);
       }
-      cta.style.display = authed ? 'none' : '';
+
+      if (authed) {
+        // Portfolio link — outline style
+        cta.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8M12 17v4"/></svg><span>Portfolio</span>';
+        cta.href = 'dashboard-patron.html';
+        cta.setAttribute('data-as-state', 'authed');
+        cta.onclick = null;
+      } else {
+        // Login button — solid rust
+        cta.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>Login</span>';
+        cta.href = 'javascript:void(0)';
+        cta.setAttribute('data-as-state', 'anon');
+        cta.onclick = function (e) { e.preventDefault(); openModal(); };
+      }
     });
   }
 
