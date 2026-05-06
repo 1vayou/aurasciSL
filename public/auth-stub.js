@@ -22,34 +22,38 @@
          top padding, so their text sits flush with the top. We give the
          button line-height:1 plus a negative margin-top so its text-line
          lines up with the link text-line under align-items:center. */
-      /* Force the nav links container to baseline-align its children so the
-         button's text baseline naturally lines up with the surrounding nav
-         link text — independent of padding. */
-      .bnav .links,nav .links{align-items:baseline}
-
-      .as-nav-login{appearance:none;-webkit-appearance:none;
-        height:34px;padding:0 18px;border-radius:6px;
-        background:#c2410c;color:#faf3e3;border:1px solid #c2410c;
-        font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-        letter-spacing:0.01em;line-height:1;cursor:pointer;
-        transition:background .2s,border-color .2s,box-shadow .2s,transform .2s;
-        display:inline-flex;align-items:center;justify-content:center;gap:8px;
-        margin-left:16px;text-decoration:none}
+      /* The Login CTA shares geometry with the surrounding nav links
+         (text at top, padding-bottom:14px) so flex's align-items:center
+         lines its text up with the other links exactly. The rust pill
+         is rendered via ::before, positioned to extend 7px above and
+         7px below the text-line — visually a button, layout-wise just
+         a link. */
+      .as-nav-login{position:relative;display:inline-flex;align-items:center;
+        gap:8px;margin-left:16px;padding:0 18px 14px;
+        text-decoration:none;cursor:pointer;
+        font-family:'Inter',sans-serif;font-size:13px;
+        font-weight:600;letter-spacing:0.01em;line-height:1;
+        color:#faf3e3}
+      .as-nav-login::before{content:'';position:absolute;
+        left:0;right:0;top:-7px;bottom:7px;border-radius:6px;
+        background:#c2410c;border:1px solid #c2410c;z-index:0;
+        transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+      .as-nav-login:hover::before{background:#9a3412;border-color:#9a3412;
+        box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
+      .as-nav-login > svg,.as-nav-login > span{position:relative;z-index:1}
       .as-nav-login svg{display:block;flex-shrink:0}
-      /* Inter at line-height:1 renders glyphs in the upper portion of the
-         em-box, leaving slightly more empty space below; nudge down 1px
-         so the cap-height visually centers in the pill. */
-      .as-nav-login span{display:inline-block;line-height:1;
-        position:relative;top:1px}
       .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
         box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
       /* === Logged-in user pill + dropdown === */
-      .as-nav-user-wrap{position:relative;margin-left:16px}
+      .as-nav-user-wrap{position:relative;margin-left:16px;
+        padding:0 0 14px;display:inline-flex;align-items:center;
+        line-height:1;font-family:'Inter',sans-serif;font-size:13px}
       .as-nav-user{padding:6px 12px 6px 6px;border-radius:6px;
         background:transparent;border:1px solid rgba(58,36,24,0.20);
-        color:#2a1a10;font-family:'Inter',sans-serif;font-size:13px;
+        color:#2a1a10;font-size:13px;
         font-weight:500;line-height:1;cursor:pointer;
         display:inline-flex;align-items:center;gap:8px;
+        position:relative;top:-7px;
         transition:border-color .2s,background .2s,color .2s}
       .as-nav-user:hover,.as-nav-user.on{border-color:#c2410c;
         background:rgba(254,215,170,0.30);color:#c2410c}
