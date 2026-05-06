@@ -20,6 +20,20 @@
       /* Bottom corner status widgets — globally hidden per design request. */
       .bcorner-bl,.bcorner-br,.corner-bl,.corner-br{display:none !important}
 
+      /* Landing page nav: apply the same translucent + backdrop-blur look
+         even at scrollY=0 so page content never bleeds through. */
+      nav{background:rgba(244,234,216,0.78) !important;
+        -webkit-backdrop-filter:blur(14px) saturate(140%) !important;
+        backdrop-filter:blur(14px) saturate(140%) !important;
+        border-bottom:1px solid rgba(58,36,24,0.10) !important}
+
+      /* The bundled landing's .links a:hover sets color:rust + bottom-
+         border:rust on every <a> in nav .links — that paints our Login
+         button text the same color as its pill bg. Override it. */
+      .as-nav-login,.as-nav-login:hover{color:#faf3e3 !important;
+        border-bottom:none !important}
+      .as-nav-login span{color:#faf3e3}
+
       /* === Nav login CTA ===
          Nav links use padding-bottom:14px (for the hover underline) and no
          top padding, so their text sits flush with the top. We give the
