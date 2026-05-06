@@ -23,17 +23,20 @@
          button line-height:1 plus a negative margin-top so its text-line
          lines up with the link text-line under align-items:center. */
       .as-nav-login{appearance:none;-webkit-appearance:none;
-        padding:8px 18px;border-radius:6px;background:#c2410c;color:#faf3e3;
-        border:1px solid #c2410c;font-family:'Inter',sans-serif;font-size:13px;
-        font-weight:600;letter-spacing:0.01em;line-height:1;cursor:pointer;
+        height:34px;padding:0 18px;border-radius:6px;
+        background:#c2410c;color:#faf3e3;border:1px solid #c2410c;
+        font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+        letter-spacing:0.01em;line-height:1;cursor:pointer;
         transition:background .2s,border-color .2s,box-shadow .2s,transform .2s;
-        display:inline-flex;align-items:center;gap:8px;
+        display:inline-flex;align-items:center;justify-content:center;gap:8px;
         margin-left:16px;text-decoration:none;
         /* Nav links have padding-bottom:14px (no top), pushing their text
            to the top of the .links flex line. We give the button a small
            negative top so its centered text-line lines up with the link
            text-line under align-items:center. */
         position:relative;top:-7px}
+      .as-nav-login svg{display:block;flex-shrink:0;position:relative;top:-1px}
+      .as-nav-login span{display:inline-block;line-height:1}
       .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
         box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
       /* === Logged-in user pill + dropdown === */
