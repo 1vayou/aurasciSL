@@ -20,7 +20,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;op
   background:radial-gradient(ellipse at 50% 60%,transparent 30%,rgba(58,36,24,0.16) 100%)}
 
 /* Top nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 40px;border-bottom:1px solid rgba(58,36,24,0.15);background:#f4ead8;box-shadow:0 1px 0 rgba(58,36,24,0.04)}
+nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 40px;border-bottom:1px solid transparent;background:transparent;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}nav.scrolled{background:rgba(244,234,216,0.92);backdrop-filter:blur(8px);border-bottom-color:rgba(58,36,24,0.12);box-shadow:0 1px 0 rgba(58,36,24,0.04)}
 nav .left{display:flex;flex-direction:column;gap:4px}
 nav .who{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.05em;color:rgba(58,36,24,0.6);display:flex;align-items:center;gap:8px}
 nav .who::before{content:'';width:14px;height:14px;border:1.5px solid rgba(58,36,24,0.55);border-radius:50%}
@@ -376,5 +376,6 @@ ctx.putImageData(grain, 0, 0);
 
 <script src="coming-soon.js?v=3"></script>
 
+<script>(function(){var n=document.querySelector('nav');if(!n)return;function u(){n.classList.toggle('scrolled',window.scrollY>20);}u();window.addEventListener('scroll',u,{passive:true});})();</script>
 </body>
 </html>
