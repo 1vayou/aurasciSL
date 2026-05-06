@@ -35,8 +35,12 @@
            negative top so its centered text-line lines up with the link
            text-line under align-items:center. */
         position:relative;top:-7px}
-      .as-nav-login svg{display:block;flex-shrink:0;position:relative;top:-1px}
-      .as-nav-login span{display:inline-block;line-height:1}
+      .as-nav-login svg{display:block;flex-shrink:0}
+      /* Inter at line-height:1 renders glyphs in the upper portion of the
+         em-box, leaving slightly more empty space below; nudge down 1px
+         so the cap-height visually centers in the pill. */
+      .as-nav-login span{display:inline-block;line-height:1;
+        position:relative;top:1px}
       .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
         box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
       /* === Logged-in user pill + dropdown === */
