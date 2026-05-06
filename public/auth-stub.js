@@ -17,26 +17,72 @@
   function ensureStyles() {
     if (document.getElementById('as-stub-styles')) return;
     const css = `
-      /* === Nav baseline alignment fix === */
-      .bnav .links,nav .links{align-items:baseline}
-
-      /* === Nav login CTA === */
+      /* === Nav login CTA ===
+         Nav links have `padding-bottom:14px` (for the hover underline) and no
+         top padding, so their text sits flush with the top of the .links box.
+         We mimic that geometry on the button: text flush with the top, with
+         the button's own visual height coming from symmetric padding plus an
+         equal negative margin-top so the button's text-line lines up with the
+         link text-line under `align-items:center`. */
       .as-nav-login{appearance:none;-webkit-appearance:none;
         padding:7px 18px;border-radius:6px;background:#c2410c;color:#faf3e3;
         border:1px solid #c2410c;font-family:'Inter',sans-serif;font-size:13px;
-        font-weight:600;letter-spacing:0.01em;cursor:pointer;
+        font-weight:600;letter-spacing:0.01em;line-height:1;cursor:pointer;
         transition:background .2s,border-color .2s,box-shadow .2s,transform .2s;
         display:inline-flex;align-items:center;gap:8px;
-        margin-left:16px;text-decoration:none;vertical-align:baseline;
-        position:relative;top:-1px}
+        margin-left:16px;margin-top:-8px;align-self:flex-start;
+        text-decoration:none}
       .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
         box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
-      /* Portfolio state — outline style */
-      .as-nav-cta[data-as-state="authed"]{
-        background:transparent;color:#c2410c;border-color:rgba(194,65,12,0.4)}
-      .as-nav-cta[data-as-state="authed"]:hover{
-        background:rgba(254,215,170,0.30);border-color:#c2410c;
-        box-shadow:0 4px 12px rgba(154,52,18,0.14);transform:translateY(-1px)}
+      /* === Logged-in user pill + dropdown === */
+      .as-nav-user-wrap{position:relative;margin-left:16px;
+        margin-top:-8px;align-self:flex-start}
+      .as-nav-user{padding:6px 12px 6px 6px;border-radius:6px;
+        background:transparent;border:1px solid rgba(58,36,24,0.20);
+        color:#2a1a10;font-family:'Inter',sans-serif;font-size:13px;
+        font-weight:500;line-height:1;cursor:pointer;
+        display:inline-flex;align-items:center;gap:8px;
+        transition:border-color .2s,background .2s,color .2s}
+      .as-nav-user:hover,.as-nav-user.on{border-color:#c2410c;
+        background:rgba(254,215,170,0.30);color:#c2410c}
+      .as-nav-user .av{width:22px;height:22px;border-radius:50%;
+        background:linear-gradient(135deg,#fed7aa,#fb923c);color:#7c2d12;
+        display:inline-flex;align-items:center;justify-content:center;
+        font-weight:600;font-size:11px;line-height:1;
+        border:1px solid rgba(194,65,12,0.30)}
+      .as-nav-user .nm{max-width:130px;overflow:hidden;
+        text-overflow:ellipsis;white-space:nowrap}
+      .as-nav-user .cv{opacity:.55;transition:transform .2s}
+      .as-nav-user.on .cv{transform:rotate(180deg)}
+
+      .as-nav-dropdown{position:absolute;top:calc(100% + 8px);right:0;
+        min-width:200px;background:#fdfcf8;
+        border:1px solid rgba(58,36,24,0.18);border-radius:6px;
+        box-shadow:0 16px 36px rgba(58,36,24,0.14);
+        padding:6px;display:none;z-index:9001;
+        font-family:'Inter',sans-serif}
+      .as-nav-dropdown.on{display:block}
+      .as-nav-dropdown::before{content:'';position:absolute;top:-5px;right:18px;
+        width:8px;height:8px;background:#fdfcf8;
+        border-left:1px solid rgba(58,36,24,0.18);
+        border-top:1px solid rgba(58,36,24,0.18);
+        transform:rotate(45deg)}
+      .as-nav-dropdown .meta{padding:10px 12px 8px;
+        font-family:'JetBrains Mono',monospace;font-size:10px;
+        color:rgba(58,36,24,0.55);letter-spacing:.10em;
+        text-transform:uppercase}
+      .as-nav-dropdown .sep{height:1px;background:rgba(58,36,24,0.10);margin:4px 0}
+      .as-nav-dropdown a,.as-nav-dropdown button{
+        display:flex;align-items:center;gap:10px;width:100%;
+        padding:9px 12px;border-radius:4px;text-decoration:none;
+        color:#2a1a10;background:transparent;border:none;cursor:pointer;
+        font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+        text-align:left;line-height:1.2;letter-spacing:0;
+        transition:background .15s,color .15s}
+      .as-nav-dropdown a:hover,.as-nav-dropdown button:hover{
+        background:rgba(254,215,170,0.30);color:#c2410c}
+      .as-nav-dropdown svg{flex-shrink:0;opacity:.7}
+      .as-nav-dropdown a:hover svg,.as-nav-dropdown button:hover svg{opacity:1}
 
       /* === Modal === */
       .as-modal-bd{position:fixed;inset:0;z-index:9000;background:rgba(42,26,16,0.55);
@@ -235,6 +281,20 @@
     applyAuthState();
   }
 
+  // ---------- helpers: pretty user name from stored handle ----------
+  function getDisplayName() {
+    var h = localStorage.getItem('aurasci_handle') || '';
+    if (!h) return 'Account';
+    if (h.indexOf('@') === 0) return h;                     // twitter @handle
+    if (/^0x[0-9a-fA-F]/.test(h)) return h;                 // wallet 0x…
+    if (h.indexOf('@') > 0) return h.split('@')[0];         // email → local part
+    return h;
+  }
+  function getInitial() {
+    var n = getDisplayName().replace(/^@/, '').replace(/^0x/, '');
+    return (n[0] || 'A').toUpperCase();
+  }
+
   // ---------- nav state ----------
   function applyAuthState() {
     ensureStyles();
@@ -243,32 +303,94 @@
     // Clean up legacy login twins
     document.querySelectorAll('.as-login-link').forEach(function (n) { n.remove(); });
 
-    // Always hide the original Portfolio link — we show it at the far right instead
+    // Always hide the original Portfolio link in the nav (logged-in users
+    // reach it via the user-menu instead)
     document.querySelectorAll(
       '.bnav .links a[href="dashboard-patron.html"], nav .links a[href="dashboard-patron.html"]'
     ).forEach(function (a) { a.style.display = 'none'; });
 
-    // Inject / update the far-right CTA in every nav links group
+    // For each top-nav links group, render either the Login button or the
+    // user pill (with dropdown) at the far-right slot.
     document.querySelectorAll('.bnav .links, nav .links').forEach(function (linksGroup) {
-      var cta = linksGroup.querySelector('.as-nav-cta');
-      if (!cta) {
-        cta = document.createElement('a');
-        cta.className = 'as-nav-login as-nav-cta';
-        linksGroup.appendChild(cta);
-      }
+      // Tear down whichever element doesn't match the desired state
+      var existingLogin = linksGroup.querySelector('.as-nav-login');
+      var existingUser  = linksGroup.querySelector('.as-nav-user-wrap');
+      if (authed && existingLogin) existingLogin.remove();
+      if (!authed && existingUser) existingUser.remove();
 
-      if (authed) {
-        // Portfolio link — outline style
-        cta.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8M12 17v4"/></svg><span>Portfolio</span>';
-        cta.href = 'dashboard-patron.html';
-        cta.setAttribute('data-as-state', 'authed');
-        cta.onclick = null;
+      if (!authed) {
+        // ---- Login button ----
+        var btn = linksGroup.querySelector('.as-nav-login');
+        if (!btn) {
+          btn = document.createElement('a');
+          btn.className = 'as-nav-login';
+          btn.href = 'javascript:void(0)';
+          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>Login</span>';
+          btn.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+          linksGroup.appendChild(btn);
+        }
       } else {
-        // Login button — solid rust
-        cta.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>Login</span>';
-        cta.href = 'javascript:void(0)';
-        cta.setAttribute('data-as-state', 'anon');
-        cta.onclick = function (e) { e.preventDefault(); openModal(); };
+        // ---- User pill + dropdown ----
+        var wrap = linksGroup.querySelector('.as-nav-user-wrap');
+        var name = getDisplayName();
+        var initial = getInitial();
+        if (!wrap) {
+          wrap = document.createElement('div');
+          wrap.className = 'as-nav-user-wrap';
+          wrap.innerHTML =
+            '<button type="button" class="as-nav-user">' +
+              '<span class="av"></span>' +
+              '<span class="nm"></span>' +
+              '<svg class="cv" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</button>' +
+            '<div class="as-nav-dropdown" role="menu">' +
+              '<div class="meta"></div>' +
+              '<a href="dashboard-patron.html" data-act="portfolio">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8M12 17v4"/></svg>' +
+                '<span>Portfolio</span>' +
+              '</a>' +
+              '<div class="sep"></div>' +
+              '<button type="button" data-act="logout">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+                '<span>Logout</span>' +
+              '</button>' +
+            '</div>';
+          linksGroup.appendChild(wrap);
+
+          var trigger = wrap.querySelector('.as-nav-user');
+          var menu = wrap.querySelector('.as-nav-dropdown');
+          trigger.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var on = menu.classList.toggle('on');
+            trigger.classList.toggle('on', on);
+          });
+          // Close on outside click
+          document.addEventListener('click', function (e) {
+            if (!wrap.contains(e.target)) {
+              menu.classList.remove('on');
+              trigger.classList.remove('on');
+            }
+          });
+          // Close on Escape
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+              menu.classList.remove('on');
+              trigger.classList.remove('on');
+            }
+          });
+          // Logout handler
+          wrap.querySelector('[data-act="logout"]').addEventListener('click', function (e) {
+            e.preventDefault();
+            menu.classList.remove('on');
+            trigger.classList.remove('on');
+            doLogout();
+          });
+        }
+        // Refresh dynamic content
+        wrap.querySelector('.av').textContent = initial;
+        wrap.querySelector('.nm').textContent = name;
+        wrap.querySelector('.meta').textContent = 'Signed in · ' + name;
       }
     });
   }
