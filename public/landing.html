@@ -99,7 +99,7 @@
       <a href="market.html" class="nav-link">Market</a>
       <a href="dashboard-patron.html" class="nav-link">Portfolio</a>
       <span class="nav-link muted">Governance</span>
-      <span class="nav-link muted">Leaderboard</span>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
   </div>
 </nav>
@@ -123,7 +123,7 @@
     <p class="tag-mono">Scientists publish · AI verifies · Patrons fund · Capital flows</p>
 
     <div class="entry-grid">
-      <button class="entry-card">
+      <button class="entry-card" data-role="scientist" type="button">
         <div class="entry-icon green">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
         </div>
@@ -135,7 +135,7 @@
         <div class="entry-cta"><span>Start Publishing</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
       </button>
 
-      <button class="entry-card">
+      <button class="entry-card" data-role="patron" type="button">
         <div class="entry-icon orange">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
         </div>
@@ -161,5 +161,26 @@
 </div>
 
 <script src="coming-soon.js?v=3"></script>
+<script src="partners.js?v=9"></script>
+<script>
+(function(){
+  // Route the two entry cards on the landing page.
+  // - Scientist  → onboarding flow (or scientist dashboard if already registered)
+  // - Patron     → straight to Market. No login wall here; sign-in is
+  //                only required when the user actually tries to fund or boost.
+  function go(href){ window.location.href = href; }
+  document.querySelectorAll('.entry-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      var role = card.getAttribute('data-role');
+      if (role === 'scientist') {
+        var registered = localStorage.getItem('aurasci_scientist_registered') === '1';
+        go(registered ? 'dashboard-scientist.html' : 'onboarding-scientist.html');
+      } else if (role === 'patron') {
+        go('market.html');
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>

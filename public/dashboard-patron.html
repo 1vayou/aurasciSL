@@ -74,6 +74,27 @@
 .sci-btn.primary{background:var(--rust);border-color:var(--rust);color:#faf3e3}
 .sci-btn.primary:hover{background:var(--rust-2,#9a3412);color:#faf3e3}
 
+/* scientist published intents list */
+.sci-intents{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.sci-intent{padding:18px 20px;border-radius:6px;border:1px solid var(--line);background:#fdfcf8;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;transition:all .2s}
+.sci-intent:hover{border-color:var(--rust);box-shadow:0 8px 18px rgba(154,52,18,0.06);transform:translateY(-1px)}
+.sci-intent .left{flex:1;min-width:240px}
+.sci-intent .ttl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.sci-intent .tk{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--rust);letter-spacing:.04em}
+.sci-intent .badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.10em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(254,215,170,0.30);color:var(--rust);border:1px solid rgba(194,65,12,0.30)}
+.sci-intent .badge.done{background:rgba(101,163,13,0.10);color:#4d7c0f;border-color:rgba(101,163,13,0.35)}
+.sci-intent .ttl{font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);letter-spacing:-0.005em;line-height:1.35}
+.sci-intent .meta{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:.04em;display:flex;gap:14px;flex-wrap:wrap}
+.sci-intent .meta b{color:var(--ink-2);font-weight:600}
+.sci-intent .right{text-align:right;min-width:160px}
+.sci-intent .right .amt{font-family:'Newsreader',serif;font-weight:500;font-size:22px;color:var(--ink);letter-spacing:-0.01em;line-height:1}
+.sci-intent .right .lbl{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.sci-intent .right .progress{margin-top:10px;height:6px;border-radius:999px;background:rgba(58,36,24,0.08);overflow:hidden}
+.sci-intent .right .progress span{display:block;height:100%;background:linear-gradient(to right,var(--rust),#fb923c)}
+.sci-intent .right .pct{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);font-weight:600}
+.sci-pending-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.40);font-size:12px;font-weight:500;color:#b45309;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+.sci-pending-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.20)}
+
 .pg-head{margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 .pg-head h1{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2rem,3.6vw,2.8rem);color:var(--ink);margin:0 0 8px;letter-spacing:-0.01em}
 .pg-head h1 em{font-style:italic;color:var(--rust)}
@@ -155,7 +176,7 @@
     <a href="market.html">Market</a>
     <a href="dashboard-patron.html" class="on">Portfolio</a>
     <span class="muted">Governance</span>
-    <span class="muted">Leaderboard</span>
+    <a href="leaderboard.html">Leaderboard</a>
   </div>
 </nav>
 
@@ -421,6 +442,55 @@
             <a class="sci-btn primary" href="create-intent.html">Create intent <span>↗</span></a>
           </div>
         </div>
+
+        <!-- My published intents -->
+        <div class="panel-h">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+            Published intents
+          </h2>
+          <div class="filter-tabs">
+            <button class="ftab active">All</button>
+            <button class="ftab">Active</button>
+            <button class="ftab">Draft</button>
+          </div>
+        </div>
+
+        <div class="sci-intents">
+          <a class="sci-intent" href="intent-detail.html" style="text-decoration:none">
+            <div class="left">
+              <div class="ttl-row">
+                <span class="tk">$SENO-01</span>
+                <span class="badge">M1 in progress</span>
+              </div>
+              <div class="ttl">Targeting senescent cells to reverse cardiac fibrosis</div>
+              <div class="meta"><span>Published · <b>Vol. 092</b></span><span>17 patrons</span><span>2 milestones verified</span></div>
+            </div>
+            <div class="right">
+              <div class="amt">$120,000</div>
+              <div class="lbl">Raised / $150k goal</div>
+              <div class="progress"><span style="width:80%"></span></div>
+              <div class="pct">80% funded</div>
+            </div>
+          </a>
+
+          <a class="sci-intent" href="intent-detail.html" style="text-decoration:none">
+            <div class="left">
+              <div class="ttl-row">
+                <span class="tk">$SENO-02</span>
+                <span class="badge done">M0 verified</span>
+              </div>
+              <div class="ttl">Small-molecule senolytics for age-related tissue decline</div>
+              <div class="meta"><span>Published · <b>Vol. 094</b></span><span>9 patrons</span><span>1 milestone verified</span></div>
+            </div>
+            <div class="right">
+              <div class="amt">$45,000</div>
+              <div class="lbl">Raised / $200k goal</div>
+              <div class="progress"><span style="width:22.5%"></span></div>
+              <div class="pct">22% funded</div>
+            </div>
+          </a>
+        </div>
       </div>
     </div><!-- /role-pane scientist -->
 
@@ -456,9 +526,33 @@
   }/*EDITMODE-END*/;
   var state = Object.assign({}, TWEAK_DEFAULTS);
 
+  // If the user already finished onboarding (or hit the dev-approve
+  // shortcut on the scientist dashboard) the flag is set in localStorage.
+  // Honor it here so the Portfolio page reflects their actual scientist
+  // registration without needing the Tweaks panel.
+  try {
+    if (localStorage.getItem('aurasci_scientist_registered') === '1') {
+      state.scientistRegistered = true;
+    }
+  } catch(_){}
+
   function applyState(){
     document.getElementById('sci-empty').style.display    = state.scientistRegistered ? 'none' : '';
     document.getElementById('sci-registered').style.display = state.scientistRegistered ? '' : 'none';
+
+    // Reflect pending vs verified review status on the registered card.
+    var approved = false;
+    try { approved = localStorage.getItem('aurasci_scientist_approved') === '1'; } catch(_){}
+    var pill = document.querySelector('#sci-registered .sci-card .sci-status');
+    if (pill) {
+      if (approved) {
+        pill.className = 'sci-status';
+        pill.textContent = 'Verified';
+      } else {
+        pill.className = 'sci-pending-badge';
+        pill.textContent = 'Pending review';
+      }
+    }
   }
   applyState();
 

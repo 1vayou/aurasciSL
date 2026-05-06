@@ -67,7 +67,7 @@
     <a href="market.html">Market</a>
     <a href="dashboard-patron.html">Portfolio</a>
     <span class="muted">Governance</span>
-    <span class="muted">Leaderboard</span>
+    <a href="leaderboard.html">Leaderboard</a>
   </div>
 </nav>
 
@@ -176,6 +176,12 @@
   var btn = document.getElementById('dev-approve');
   if (!btn) return;
   btn.addEventListener('click', function(){
+    // Mark scientist as registered + approved so Portfolio (dashboard-patron)
+    // surfaces the registered scientist view.
+    try {
+      localStorage.setItem('aurasci_scientist_registered', '1');
+      localStorage.setItem('aurasci_scientist_approved', '1');
+    } catch(_){}
     // 1) Top status banner — clock → check, copy + colour shift to green
     var banner = document.getElementById('status-banner');
     var bA = document.getElementById('status-banner-a');

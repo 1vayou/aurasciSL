@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>AuraSci — Patron Leaderboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="bust-theme.css?v=3" />
+<style>
+  /* ----- page header ----- */
+  .pg-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:36px}
+  .pg-head h1{margin:0 0 10px;font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2.4rem,4.6vw,3.6rem);color:var(--ink);letter-spacing:-0.02em;line-height:1.05}
+  .pg-head h1 em{font-style:italic;color:var(--rust)}
+  .pg-head .sub{max-width:540px;font-size:15px;color:var(--ink-3);line-height:1.6;margin:0}
+  .pg-head .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rust);margin-bottom:14px}
+  .pg-head .eyebrow::before{content:'';width:18px;height:1px;background:var(--rust)}
+
+  /* ----- you-card (current user inline rank, when logged in) ----- */
+  .you-card{padding:18px 22px;border:1px solid rgba(194,65,12,0.30);background:rgba(254,215,170,0.18);border-radius:6px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;min-width:340px;max-width:520px}
+  .you-card .ic{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#fed7aa,#fb923c);color:#7c2d12;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;flex-shrink:0;border:1px solid rgba(194,65,12,0.30)}
+  .you-card .meta{flex:1;min-width:0}
+  .you-card .meta .a{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:.10em;text-transform:uppercase;margin-bottom:4px}
+  .you-card .meta .b{font-family:'Newsreader',serif;font-size:18px;color:var(--ink);letter-spacing:-0.005em}
+  .you-card .meta .b em{font-style:italic;color:var(--rust);font-weight:500}
+  .you-card .stat{text-align:right}
+  .you-card .stat .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:var(--rust);letter-spacing:.02em}
+  .you-card .stat .l{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+  /* ----- top stats strip ----- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:36px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0}
+  @media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr);gap:18px 0}}
+  .stat-card{padding:0 28px;border-right:1px solid var(--line)}
+  .stat-card:last-child{border-right:none}
+  @media (max-width:900px){.stat-card{padding:0 18px;border-right:none}.stat-card:nth-child(odd){border-right:1px solid var(--line)}}
+  .stat-card .l{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  .stat-card .v{font-family:'Newsreader',serif;font-weight:500;font-size:30px;color:var(--ink);letter-spacing:-0.02em;line-height:1}
+  .stat-card .v .cur{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--rust);font-weight:500;margin-right:4px;vertical-align:6px}
+
+  /* ----- toolbar ----- */
+  .lb-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .lb-filters{display:flex;gap:8px;flex-wrap:wrap}
+  .ftab{padding:7px 14px;border-radius:999px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;background:#fdfcf8;border:1px solid var(--line);color:var(--ink-3);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+  .ftab:hover{border-color:var(--rust);color:var(--rust)}
+  .ftab.on{background:var(--ink);border-color:var(--ink);color:#faf3e3}
+  .lb-search{position:relative;display:flex;align-items:center}
+  .lb-search input{padding:9px 14px 9px 36px;border-radius:999px;border:1px solid var(--line);background:#fdfcf8;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;transition:all .2s;width:240px}
+  .lb-search input:focus{border-color:var(--rust);background:#fffaee;box-shadow:0 0 0 3px rgba(194,65,12,0.10)}
+  .lb-search svg{position:absolute;left:14px;color:var(--mute);pointer-events:none}
+
+  /* ----- table ----- */
+  .lb-table{background:#fdfcf8;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .lb-table::before,.lb-table::after{content:'';position:absolute;width:14px;height:14px;border:1.5px solid var(--rust);opacity:.5;pointer-events:none}
+  .lb-table::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+  .lb-table::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+  .lb-row{display:grid;grid-template-columns:72px 1.6fr 1fr 1fr 1.4fr;gap:18px;padding:16px 24px;align-items:center;border-bottom:1px solid var(--line-soft);transition:background .15s}
+  .lb-row:last-child{border-bottom:none}
+  .lb-row:not(.head):hover{background:rgba(254,215,170,0.18)}
+  .lb-row.head{background:#faf3e3;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;padding:14px 24px}
+  @media (max-width:820px){
+    .lb-row{grid-template-columns:60px 1.5fr 1fr;padding:14px 16px;gap:12px}
+    .lb-row .col-projects,.lb-row .col-share{display:none}
+    .lb-row.head .col-projects,.lb-row.head .col-share{display:none}
+  }
+
+  .col-rank{display:flex;align-items:center;gap:8px}
+  .col-rank .num{font-family:'Instrument Serif',serif;font-size:30px;color:var(--ink);line-height:1;font-style:italic;letter-spacing:-0.02em}
+  .col-rank.r1 .num{color:#c2410c}
+  .col-rank.r2 .num{color:#5a3d2a}
+  .col-rank.r3 .num{color:#9a3412}
+  .col-rank .crown{width:14px;height:14px;flex-shrink:0;color:#c2410c;opacity:0;transition:opacity .2s}
+  .col-rank.r1 .crown,.col-rank.r2 .crown,.col-rank.r3 .crown{opacity:1}
+  .col-rank.r2 .crown{color:#5a3d2a}
+  .col-rank.r3 .crown{color:#9a3412}
+  .lb-row.you{background:rgba(254,215,170,0.30) !important;box-shadow:inset 3px 0 0 var(--rust)}
+
+  .col-account{display:flex;align-items:center;gap:14px;min-width:0}
+  .acc-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;border:1px solid rgba(58,36,24,0.10)}
+  .acc-av.org{background:linear-gradient(135deg,#3a2418,#5a3d2a);color:#fed7aa;border-color:rgba(58,36,24,0.20);border-radius:6px}
+  .acc-av.ind{background:linear-gradient(135deg,#fed7aa,#fb923c);color:#7c2d12}
+  .acc-meta{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .acc-name{display:flex;align-items:center;gap:8px;font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);letter-spacing:-0.005em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .acc-name .badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:2px 6px;border-radius:3px;line-height:1.2;flex-shrink:0}
+  .acc-name .badge.org{background:rgba(58,36,24,0.08);color:var(--ink-2);border:1px solid rgba(58,36,24,0.18)}
+  .acc-name .badge.ind{background:rgba(254,215,170,0.40);color:var(--rust);border:1px solid rgba(194,65,12,0.30)}
+  .acc-handle{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .col-projects{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink);font-weight:600}
+  .col-projects .sub{font-size:11px;color:var(--mute);font-weight:500;margin-top:3px;letter-spacing:.04em}
+  .col-funded{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .col-funded .v{font-family:'Newsreader',serif;font-weight:500;font-size:22px;color:var(--ink);letter-spacing:-0.01em;line-height:1}
+  .col-funded .v .cur{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);font-weight:500;margin-right:3px;vertical-align:5px}
+  .col-funded .lbl{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+
+  .col-share{display:flex;flex-direction:column;gap:6px}
+  .col-share .pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-2);display:flex;justify-content:space-between;align-items:baseline}
+  .col-share .pct b{color:var(--rust);font-weight:700;font-size:13px}
+  .col-share .bar{height:5px;border-radius:999px;background:rgba(58,36,24,0.08);overflow:hidden}
+  .col-share .bar span{display:block;height:100%;background:linear-gradient(to right,var(--rust),#fb923c);transition:width .3s}
+
+  /* ----- footer / load more ----- */
+  .lb-foot{margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);letter-spacing:.08em}
+  .lb-foot .updated{display:inline-flex;align-items:center;gap:8px}
+  .lb-foot .updated::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--rust);box-shadow:0 0 0 3px rgba(194,65,12,0.18)}
+</style>
+</head>
+<body>
+
+<div class="bportrait-bg"></div>
+
+<nav class="bnav">
+  <div class="left">
+    <a class="brand" href="index.html"><img class="brand-mark" src="logo-mark.png" alt="" /><span>AuraSci</span></a>
+  </div>
+  <div class="links">
+    <a href="market.html">Market</a>
+    <a href="dashboard-patron.html">Portfolio</a>
+    <span class="muted">Governance</span>
+    <a href="leaderboard.html" class="on">Leaderboard</a>
+  </div>
+</nav>
+
+<section class="bpage">
+  <div class="bpage-inner fade-in">
+
+    <div class="pg-head">
+      <div>
+        <h1>Patron <em>leaderboard</em></h1>
+        <p class="sub">Top 50 patrons across AuraSci, ranked by total committed capital. Both individuals and institutions are eligible — capital must be in escrow or already released against verified milestones.</p>
+      </div>
+      <div class="you-card" id="you-card" style="display:none">
+        <div class="ic" id="you-ic">A</div>
+        <div class="meta">
+          <div class="a">Your standing</div>
+          <div class="b">Currently <em>#<span id="you-rank">—</span></em> · <span id="you-name">—</span></div>
+        </div>
+        <div class="stat">
+          <div class="v" id="you-amt">$0</div>
+          <div class="l">Lifetime committed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="l">Total committed</div>
+        <div class="v"><span class="cur">$</span><span id="kpi-total">—</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="l">Active patrons</div>
+        <div class="v" id="kpi-patrons">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="l">Avg per patron</div>
+        <div class="v"><span class="cur">$</span><span id="kpi-avg">—</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="l">Top 10 share</div>
+        <div class="v" id="kpi-top10">—<span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--rust);margin-left:4px">%</span></div>
+      </div>
+    </div>
+
+    <div class="lb-tools">
+      <div class="lb-filters" role="tablist"></div>
+      <div class="lb-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="lb-search" type="search" placeholder="Search patron or handle…" />
+      </div>
+    </div>
+
+    <div class="lb-table">
+      <div class="lb-row head">
+        <div class="col-rank">Rank</div>
+        <div class="col-account">Patron</div>
+        <div class="col-projects">Projects</div>
+        <div class="col-funded" style="text-align:right">Total committed</div>
+        <div class="col-share">Share of pool</div>
+      </div>
+      <div id="lb-body"></div>
+    </div>
+
+    <div class="lb-foot">
+      <span class="updated">Live · last refresh <b id="lb-updated">just now</b></span>
+      <span>Top 50 of <b id="lb-pool">—</b> active patrons · capital in USDC equivalent</span>
+    </div>
+
+  </div>
+</section>
+
+<div class="bcorner-bl">
+  <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+  <div>Leaderboard / Vol. 097<br/></div>
+</div>
+<div class="bcorner-br">
+  <span class="blink"></span>Status · live<br/><b>Top 50</b> patrons
+</div>
+
+<script src="auth-stub.js?v=15"></script>
+<script src="coming-soon.js?v=3"></script>
+<script>
+(function(){
+  // ---------------------------------------------------------------
+  // Demo dataset
+  // ---------------------------------------------------------------
+  // Mix of individual and institutional patrons. Amounts in USDC.
+  // Order doesn't matter — we sort by `amount` desc on render.
+  // ---------------------------------------------------------------
+  var SEED = [
+    // Tier 1 — institutions
+    { type:'org', name:'Hetu Foundation',                  handle:'hetu.eth',         amount: 4_820_000, projects: 17 },
+    { type:'org', name:'Advaita Labs',                     handle:'advaita.labs',     amount: 3_650_000, projects: 14 },
+    { type:'org', name:'Schmidt Futures',                  handle:'schmidt.fund',     amount: 3_200_000, projects: 12 },
+    { type:'org', name:'CZ Initiative',                    handle:'czi.science',      amount: 2_840_000, projects: 11 },
+    { type:'org', name:'Astera Institute',                 handle:'astera.org',       amount: 2_410_000, projects: 9  },
+    // Tier 2 — high-net-worth individuals
+    { type:'ind', name:'Vitalik B.',                       handle:'@vitalikbuterin',  amount: 1_980_000, projects: 22 },
+    { type:'ind', name:'Balaji S.',                        handle:'@balajis',         amount: 1_540_000, projects: 18 },
+    { type:'org', name:'Protocol Labs Research',           handle:'@protocollabs',    amount: 1_360_000, projects: 8  },
+    { type:'ind', name:'Naval R.',                         handle:'@naval',           amount: 1_120_000, projects: 14 },
+    { type:'org', name:'Open Philanthropy',                handle:'openphil.org',     amount: 1_080_000, projects: 7  },
+
+    // 11–25
+    { type:'ind', name:'Patrick C.',                       handle:'@patrickc',        amount:   980_000, projects: 12 },
+    { type:'org', name:'Arc Institute',                    handle:'arcinstitute.org', amount:   910_000, projects: 6  },
+    { type:'ind', name:'Brian A.',                         handle:'@brian_armstrong', amount:   860_000, projects:  9 },
+    { type:'org', name:'NEAR Foundation',                  handle:'near.foundation',  amount:   800_000, projects:  7 },
+    { type:'ind', name:'Jesse P.',                         handle:'@jessepollak',     amount:   720_000, projects: 11 },
+    { type:'org', name:'Polygon Ventures',                 handle:'polygon.ventures', amount:   665_000, projects:  5 },
+    { type:'ind', name:'Stani K.',                         handle:'@StaniKulechov',   amount:   612_000, projects:  8 },
+    { type:'ind', name:'Sandeep N.',                       handle:'@sandeepnailwal',  amount:   590_000, projects:  6 },
+    { type:'org', name:'a16z crypto research',             handle:'a16zcrypto.com',   amount:   540_000, projects:  5 },
+    { type:'org', name:'Paradigm Research',                handle:'paradigm.xyz',     amount:   495_000, projects:  4 },
+    { type:'ind', name:'Linda X.',                         handle:'@lindaxie',        amount:   470_000, projects:  9 },
+    { type:'ind', name:'Anatoly Y.',                       handle:'@aeyakovenko',     amount:   442_000, projects:  6 },
+    { type:'org', name:'Variant Fund',                     handle:'variant.fund',     amount:   418_000, projects:  4 },
+    { type:'ind', name:'Tom S.',                           handle:'@tomshaughnessy',  amount:   395_000, projects:  7 },
+    { type:'ind', name:'Robert L.',                        handle:'@robertleshner',   amount:   372_000, projects:  5 },
+
+    // 26–40
+    { type:'org', name:'Stanford Bio-X Fund',              handle:'biox.stanford',    amount:   348_000, projects:  4 },
+    { type:'ind', name:'Hayden A.',                        handle:'@haydenzadams',    amount:   329_000, projects:  6 },
+    { type:'org', name:'Brigham Research Trust',           handle:'brigham.trust',    amount:   311_000, projects:  3 },
+    { type:'ind', name:'Camila R.',                        handle:'@camilarussell',   amount:   294_000, projects:  5 },
+    { type:'ind', name:'Marcus T.',                        handle:'@marcust',         amount:   276_000, projects:  4 },
+    { type:'org', name:'McGill Open Science',              handle:'mcgill.os',        amount:   258_000, projects:  3 },
+    { type:'ind', name:'Sara P.',                          handle:'@sara_p',          amount:   244_000, projects:  6 },
+    { type:'ind', name:'Diego H.',                         handle:'@diego_h',         amount:   227_000, projects:  4 },
+    { type:'org', name:'Princeton Futures',                handle:'princeton.fut',    amount:   210_000, projects:  3 },
+    { type:'ind', name:'Anna K.',                          handle:'@annak',           amount:   198_000, projects:  5 },
+    { type:'ind', name:'Eric W.',                          handle:'@ericw',           amount:   183_000, projects:  3 },
+    { type:'ind', name:'Layla M.',                         handle:'@laylam',          amount:   171_000, projects:  4 },
+    { type:'org', name:'Cambridge Open Lab',               handle:'cam.openlab',      amount:   160_000, projects:  3 },
+    { type:'ind', name:'Owen B.',                          handle:'@owenb',           amount:   149_000, projects:  3 },
+    { type:'ind', name:'Hina S.',                          handle:'@hinas',           amount:   138_000, projects:  4 },
+
+    // 41–50
+    { type:'ind', name:'Kenji A.',                         handle:'@kenjia',          amount:   128_000, projects:  3 },
+    { type:'ind', name:'Sofia G.',                         handle:'@sofiag',          amount:   118_000, projects:  3 },
+    { type:'org', name:'UW Open Bio',                      handle:'uw.openbio',       amount:   108_000, projects:  2 },
+    { type:'ind', name:'Mateo R.',                         handle:'@mateor',          amount:    99_000, projects:  3 },
+    { type:'ind', name:'Priya N.',                         handle:'@priyan',          amount:    91_000, projects:  3 },
+    { type:'ind', name:'Yuki T.',                          handle:'@yukit',           amount:    84_000, projects:  2 },
+    { type:'ind', name:'Adam C.',                          handle:'@adamc',           amount:    77_000, projects:  2 },
+    { type:'ind', name:'Lila F.',                          handle:'@lilaf',           amount:    71_000, projects:  2 },
+    { type:'ind', name:'Mei H.',                           handle:'@meih',            amount:    66_000, projects:  2 },
+    { type:'ind', name:'Noah K.',                          handle:'@noahk',           amount:    61_000, projects:  2 }
+  ];
+
+  // ---------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------
+  function fmtMoney(n){
+    if (n >= 1e6) return (n/1e6).toFixed(n>=1e7?1:2).replace(/\.?0+$/,'') + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(n>=1e5?0:1).replace(/\.0$/,'') + 'k';
+    return String(n);
+  }
+  function fmtMoneyFull(n){
+    return n.toLocaleString('en-US');
+  }
+  function initialsOf(s){
+    var parts = s.replace(/^@/,'').split(/[\s._-]+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0] || 'A').slice(0,2).toUpperCase();
+  }
+
+  // ---------------------------------------------------------------
+  // Sort + decorate
+  // ---------------------------------------------------------------
+  var sorted = SEED.slice().sort(function(a,b){ return b.amount - a.amount; });
+  var top50  = sorted.slice(0, 50);
+  var totalAll = sorted.reduce(function(s,p){ return s+p.amount; }, 0);
+  var top10Sum = sorted.slice(0,10).reduce(function(s,p){ return s+p.amount; }, 0);
+
+  // Inject the rank into each entry now so search/filter renders keep order.
+  top50.forEach(function(p,i){ p.rank = i + 1; });
+
+  // ---------------------------------------------------------------
+  // KPIs
+  // ---------------------------------------------------------------
+  document.getElementById('kpi-total').textContent  = fmtMoney(totalAll);
+  document.getElementById('kpi-patrons').textContent = sorted.length.toLocaleString();
+  document.getElementById('kpi-avg').textContent    = fmtMoney(Math.round(totalAll / sorted.length));
+  document.getElementById('kpi-top10').firstChild.nodeValue = (top10Sum / totalAll * 100).toFixed(1);
+  document.getElementById('lb-pool').textContent    = sorted.length.toLocaleString();
+
+  // ---------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------
+  var body = document.getElementById('lb-body');
+  var maxAmount = top50[0].amount;
+  var state = { filter: 'all', q: '' };
+
+  function row(p){
+    var pct = (p.amount / totalAll * 100);
+    var rkClass = 'col-rank' + (p.rank<=3 ? (' r' + p.rank) : '');
+    var crown = '<svg class="crown" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 7l4 4 5-7 5 7 4-4-2 12H5L3 7zm2 14h14v2H5z"/></svg>';
+    var avClass = 'acc-av ' + p.type;
+    var youCls = p.you ? ' you' : '';
+    return ''
+      + '<div class="lb-row' + youCls + '" data-type="' + p.type + '" data-q="' + (p.name + ' ' + p.handle).toLowerCase() + '">'
+      +   '<div class="' + rkClass + '">'
+      +     crown
+      +     '<span class="num">' + p.rank + '</span>'
+      +   '</div>'
+      +   '<div class="col-account">'
+      +     '<div class="' + avClass + '">' + initialsOf(p.name) + '</div>'
+      +     '<div class="acc-meta">'
+      +       '<div class="acc-name">'
+      +         '<span>' + p.name + '</span>'
+      +       '</div>'
+      +       '<div class="acc-handle">' + p.handle + '</div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<div class="col-projects">'
+      +     p.projects
+      +     '<div class="sub">' + (p.projects === 1 ? 'project funded' : 'projects funded') + '</div>'
+      +   '</div>'
+      +   '<div class="col-funded">'
+      +     '<div class="v"><span class="cur">$</span>' + fmtMoneyFull(p.amount) + '</div>'
+      +     '<div class="lbl">USDC</div>'
+      +   '</div>'
+      +   '<div class="col-share">'
+      +     '<div class="pct"><b>' + pct.toFixed(2) + '%</b><span>' + ((p.amount/maxAmount)*100).toFixed(0) + '% of leader</span></div>'
+      +     '<div class="bar"><span style="width:' + (p.amount / maxAmount * 100) + '%"></span></div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  function render(){
+    var html = '';
+    var seen = 0;
+    top50.forEach(function(p){
+      if (state.filter !== 'all' && p.type !== state.filter) return;
+      if (state.q && p.name.toLowerCase().indexOf(state.q) < 0
+                  && p.handle.toLowerCase().indexOf(state.q) < 0) return;
+      html += row(p);
+      seen++;
+    });
+    if (!seen) {
+      html = '<div style="padding:38px 24px;text-align:center;color:var(--mute);font-family:\'JetBrains Mono\',monospace;font-size:13px">No patrons match your search.</div>';
+    }
+    body.innerHTML = html;
+  }
+  render();
+
+  // ---------------------------------------------------------------
+  // Filter tabs + search
+  // ---------------------------------------------------------------
+  document.querySelectorAll('.ftab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.ftab').forEach(function(x){ x.classList.toggle('on', x === t); });
+      state.filter = t.dataset.filter;
+      render();
+    });
+  });
+  var searchEl = document.getElementById('lb-search');
+  searchEl.addEventListener('input', function(){
+    state.q = searchEl.value.trim().toLowerCase();
+    render();
+  });
+
+  // ---------------------------------------------------------------
+  // Logged-in "your standing" card
+  //   – Reads the auth stub state
+  //   – If the current user has a fake patronage in localStorage we
+  //     surface their rank against the live dataset; otherwise we
+  //     synthesize a believable mid-table rank.
+  // ---------------------------------------------------------------
+  function showYouCard(){
+    var authed = (window.AuraSciAuth && window.AuraSciAuth.isAuthed && window.AuraSciAuth.isAuthed())
+                 || (localStorage.getItem('aurasci_auth') === '1');
+    if (!authed) return;
+
+    var handle = localStorage.getItem('aurasci_handle') || 'You';
+    var displayName = handle.indexOf('@') === 0 ? handle
+                    : (handle.indexOf('@') > 0  ? handle.split('@')[0] : handle);
+
+    // Read the patron's own committed total from the dashboard demo
+    // numbers if present; otherwise pick a sensible mid-table figure.
+    var amt = parseInt(localStorage.getItem('aurasci_patron_committed') || '95000', 10);
+    var projects = parseInt(localStorage.getItem('aurasci_patron_projects') || '3', 10);
+
+    // Rank against the existing pool.
+    var rank = 1;
+    for (var i = 0; i < sorted.length; i++) {
+      if (sorted[i].amount > amt) rank++;
+      else break;
+    }
+
+    var card = document.getElementById('you-card');
+    card.style.display = 'flex';
+    document.getElementById('you-rank').textContent = rank;
+    document.getElementById('you-name').textContent = displayName + ' · ' + projects + ' project' + (projects===1?'':'s');
+    document.getElementById('you-amt').textContent  = '$' + fmtMoneyFull(amt);
+    document.getElementById('you-ic').textContent   = initialsOf(displayName);
+
+    // If the user happens to land in the top 50 we mark their row.
+    if (rank <= 50) {
+      // Insert them into the rendered list at the correct index. We
+      // splice into top50 (mutates the local copy only) and re-render.
+      top50.splice(rank - 1, 0, {
+        type: 'ind', name: displayName + ' (you)',
+        handle: handle, amount: amt, projects: projects,
+        you: true, rank: rank
+      });
+      // Bump everyone behind us down a slot, drop tail past 50.
+      for (var j = rank; j < top50.length; j++) top50[j].rank = j + 1;
+      top50 = top50.slice(0, 50);
+      render();
+    }
+  }
+  // Run after auth-stub has had a chance to hydrate state.
+  setTimeout(showYouCard, 60);
+
+  // Last refresh ticker — purely cosmetic.
+  var startedAt = Date.now();
+  setInterval(function(){
+    var s = Math.round((Date.now() - startedAt) / 1000);
+    var label = s < 60 ? (s + 's ago')
+              : s < 3600 ? (Math.round(s/60) + 'm ago')
+              : (Math.round(s/3600) + 'h ago');
+    document.getElementById('lb-updated').textContent = label;
+  }, 5000);
+})();
+</script>
+</body>
+</html>

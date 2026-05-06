@@ -20,9 +20,15 @@
       /* Bottom corner status widgets — globally hidden per design request. */
       .bcorner-bl,.bcorner-br,.corner-bl,.corner-br{display:none !important}
 
-      /* Landing page nav: apply the same translucent + backdrop-blur look
-         even at scrollY=0 so page content never bleeds through. */
-      nav{background:rgba(244,234,216,0.78) !important;
+      /* Top nav: transparent by default, opaque + blurred once the page
+         is scrolled. The .scrolled class is toggled by the listener below. */
+      nav{background:transparent !important;
+        -webkit-backdrop-filter:none !important;
+        backdrop-filter:none !important;
+        border-bottom:1px solid transparent !important;
+        transition:background-color .25s ease, border-color .25s ease,
+          backdrop-filter .25s ease, -webkit-backdrop-filter .25s ease}
+      nav.scrolled{background:rgba(244,234,216,0.78) !important;
         -webkit-backdrop-filter:blur(14px) saturate(140%) !important;
         backdrop-filter:blur(14px) saturate(140%) !important;
         border-bottom:1px solid rgba(58,36,24,0.10) !important}
@@ -54,13 +60,15 @@
       .as-nav-login::before{content:'';position:absolute;
         left:0;right:0;top:-7px;bottom:7px;border-radius:6px;
         background:#c2410c;border:1px solid #c2410c;z-index:0;
-        transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+        transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
       .as-nav-login:hover::before{background:#9a3412;border-color:#9a3412;
-        box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
+        box-shadow:0 4px 12px rgba(154,52,18,0.22)}
+      .as-nav-login:active::before{background:#7c2d12;border-color:#7c2d12;
+        box-shadow:0 2px 6px rgba(124,45,18,0.25)}
+      .as-nav-login:focus-visible{outline:none}
+      .as-nav-login:focus-visible::before{box-shadow:0 0 0 3px rgba(194,65,12,0.30)}
       .as-nav-login > svg,.as-nav-login > span{position:relative;z-index:1}
       .as-nav-login svg{display:block;flex-shrink:0}
-      .as-nav-login:hover{background:#9a3412;border-color:#9a3412;
-        box-shadow:0 6px 16px rgba(154,52,18,0.28);transform:translateY(-1px)}
       /* === Logged-in user pill + dropdown === */
       .as-nav-user-wrap{position:relative;margin-left:16px;
         padding:0 0 14px;display:inline-flex;align-items:center;
@@ -70,7 +78,6 @@
         color:#2a1a10;font-size:13px;
         font-weight:500;line-height:1;cursor:pointer;
         display:inline-flex;align-items:center;gap:8px;
-        position:relative;top:-7px;
         transition:border-color .2s,background .2s,color .2s}
       .as-nav-user:hover,.as-nav-user.on{border-color:#c2410c;
         background:rgba(254,215,170,0.30);color:#c2410c}
@@ -438,13 +445,42 @@
     if (interceptInstalled) return;
     interceptInstalled = true;
     document.addEventListener('click', function (e) {
+      // Patron dashboard / portfolio links — keep gating these behind login.
       const a = e.target.closest('a[href$="dashboard-patron.html"], a[href*="dashboard-patron.html?"]');
-      if (!a) return;
-      if (isAuthed()) return;
-      e.preventDefault();
-      sessionStorage.setItem('aurasci_post_login', a.getAttribute('href'));
-      openModal();
-    });
+      if (a && !isAuthed()) {
+        // EXCEPTION: the home-page "I'm a patron" role-picker card is also
+        // an <a href="dashboard-patron.html">, but conceptually it's the
+        // PUBLIC entry into the patron flow — it should land on the Market
+        // browse page, NOT prompt for login. Login is only required when
+        // the user actually tries to fund or boost something.
+        if (a.closest('.role-card, .entry-card, [data-role="patron"]')) {
+          e.preventDefault();
+          window.location.href = 'market.html';
+          return;
+        }
+        e.preventDefault();
+        sessionStorage.setItem('aurasci_post_login', a.getAttribute('href'));
+        openModal();
+        return;
+      }
+      // Funding / Boost actions on intent-detail (and anywhere else they
+      // appear). Browsing the Market and reading an intent is fully open;
+      // we only ask the user to sign in at the moment money or aura is
+      // actually committed.
+      //  · `.fund-cta`            → "Fund this research" CTA
+      //  · `.heat-cta button`     → "Boost ↑" button on intent-detail
+      //  · `[data-requires-auth]` → opt-in escape hatch for future surfaces
+      const actionable = e.target.closest(
+        '.fund-cta, .heat-cta button, [data-requires-auth]'
+      );
+      if (actionable && !isAuthed()) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Resume on the same page after login.
+        sessionStorage.setItem('aurasci_post_login', window.location.href);
+        openModal();
+      }
+    }, true); // capture-phase so we win against page-level handlers
   }
 
   // ---------- expose ----------
@@ -487,9 +523,35 @@
     });
   }
 
+  // ---------- nav scroll-state ----------
+  // Toggle a `.scrolled` class on every <nav> once the user scrolls past
+  // a small threshold. CSS above keeps the nav transparent at the top of
+  // the page and switches to the opaque/blurred look when scrolled.
+  function initNavScroll() {
+    var THRESHOLD = 8;
+    function update() {
+      var on = (window.scrollY || window.pageYOffset || 0) > THRESHOLD;
+      var navs = document.querySelectorAll('nav');
+      for (var i = 0; i < navs.length; i++) {
+        navs[i].classList.toggle('scrolled', on);
+      }
+    }
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () { update(); ticking = false; });
+    }, { passive: true });
+    update();
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootstrap);
+    document.addEventListener('DOMContentLoaded', function () {
+      bootstrap();
+      initNavScroll();
+    });
   } else {
     bootstrap();
+    initNavScroll();
   }
 })();
