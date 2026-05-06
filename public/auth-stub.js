@@ -302,10 +302,14 @@
     document.querySelectorAll('.as-login-link').forEach(function (n) { n.remove(); });
 
     // Always hide the original Portfolio link in the nav (logged-in users
-    // reach it via the user-menu instead)
+    // reach it via the user-menu instead). Only write when not already
+    // hidden so the assignment doesn't churn the style attribute and feed
+    // the MutationObserver another mutation.
     document.querySelectorAll(
       '.bnav .links a[href="dashboard-patron.html"], nav .links a[href="dashboard-patron.html"]'
-    ).forEach(function (a) { a.style.display = 'none'; });
+    ).forEach(function (a) {
+      if (a.style.display !== 'none') a.style.display = 'none';
+    });
 
     // For each top-nav links group, render either the Login button or the
     // user pill (with dropdown) at the far-right slot.
@@ -385,10 +389,15 @@
             doLogout();
           });
         }
-        // Refresh dynamic content
-        wrap.querySelector('.av').textContent = initial;
-        wrap.querySelector('.nm').textContent = name;
-        wrap.querySelector('.meta').textContent = 'Signed in · ' + name;
+        // Refresh dynamic content — only write when changed, otherwise the
+        // childList mutation re-triggers our MutationObserver and we loop.
+        var avEl = wrap.querySelector('.av');
+        var nmEl = wrap.querySelector('.nm');
+        var mtEl = wrap.querySelector('.meta');
+        var metaText = 'Signed in · ' + name;
+        if (avEl.textContent !== initial)  avEl.textContent = initial;
+        if (nmEl.textContent !== name)     nmEl.textContent = name;
+        if (mtEl.textContent !== metaText) mtEl.textContent = metaText;
       }
     });
   }
@@ -416,18 +425,32 @@
     open: openModal
   };
 
+  // rAF-coalesced apply so a burst of DOM mutations (the bundled landing
+  // continuously animates the hero, etc.) only triggers one applyAuthState
+  // per frame. Without this, applyAuthState's own DOM writes feed the
+  // observer recursively and pin the main thread.
+  var applyPending = false;
+  function scheduleApply() {
+    if (applyPending) return;
+    applyPending = true;
+    (window.requestAnimationFrame || function (cb) { return setTimeout(cb, 16); })(
+      function () { applyPending = false; applyAuthState(); }
+    );
+  }
+
   function bootstrap() {
     applyAuthState();
     interceptPatronLinks();
     // The bundled landing swaps the entire <html> via
-    // documentElement.replaceWith(...) on DOMContentLoaded, which detaches any
-    // MutationObserver attached to <body>. Observe `document` instead — that
-    // node survives the swap and we still hear about subtree changes inside
-    // the new documentElement. We also re-apply on a few timers so the nav
-    // CTA is in place even if the swap happens after observer-disconnect.
+    // documentElement.replaceWith(...) on DOMContentLoaded, which detaches
+    // any observer on <body>. Observe `document` (survives the swap) but
+    // only watch childList (NOT attributes / characterData), and only for
+    // 8 seconds — long enough for the bundle to render, short enough that
+    // we don't keep reacting to every animation frame for the page lifetime.
     if ('MutationObserver' in window) {
-      const obs = new MutationObserver(function () { applyAuthState(); });
+      var obs = new MutationObserver(scheduleApply);
       obs.observe(document, { childList: true, subtree: true });
+      setTimeout(function () { obs.disconnect(); }, 8000);
     }
     [50, 200, 600, 1500, 3000, 6000].forEach(function (ms) {
       setTimeout(applyAuthState, ms);
