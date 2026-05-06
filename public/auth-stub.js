@@ -17,6 +17,9 @@
   function ensureStyles() {
     if (document.getElementById('as-stub-styles')) return;
     const css = `
+      /* Bottom corner status widgets — globally hidden per design request. */
+      .bcorner-bl,.bcorner-br,.corner-bl,.corner-br{display:none !important}
+
       /* === Nav login CTA ===
          Nav links use padding-bottom:14px (for the hover underline) and no
          top padding, so their text sits flush with the top. We give the
