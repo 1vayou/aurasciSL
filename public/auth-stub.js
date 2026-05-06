@@ -421,11 +421,19 @@
   function bootstrap() {
     applyAuthState();
     interceptPatronLinks();
+    // The bundled landing swaps the entire <html> via
+    // documentElement.replaceWith(...) on DOMContentLoaded, which detaches any
+    // MutationObserver attached to <body>. Observe `document` instead — that
+    // node survives the swap and we still hear about subtree changes inside
+    // the new documentElement. We also re-apply on a few timers so the nav
+    // CTA is in place even if the swap happens after observer-disconnect.
     if ('MutationObserver' in window) {
       const obs = new MutationObserver(function () { applyAuthState(); });
-      obs.observe(document.body, { childList: true, subtree: true });
-      setTimeout(function () { obs.disconnect(); }, 10000);
+      obs.observe(document, { childList: true, subtree: true });
     }
+    [50, 200, 600, 1500, 3000, 6000].forEach(function (ms) {
+      setTimeout(applyAuthState, ms);
+    });
   }
 
   if (document.readyState === 'loading') {
