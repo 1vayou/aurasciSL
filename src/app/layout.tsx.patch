@@ -1,0 +1,30 @@
+// ─────────────────────────────────────────────────────────────────────────
+// PATCH for src/app/layout.tsx
+//
+// Wrap the existing <body> tree with the AuraSciWalletProvider so every
+// page can use Solana hooks (useWallet, usePatronage, useMilestone…).
+// ─────────────────────────────────────────────────────────────────────────
+
+// 1. Add this import at the top of layout.tsx, alongside the other imports:
+
+import { AuraSciWalletProvider } from '@/solana/components/WalletProvider';
+
+// 2. Replace the contents of <body> with:
+
+<body className={inter.className}>
+  <AuraSciWalletProvider>
+    {/* keep all existing children unchanged */}
+    {children}
+  </AuraSciWalletProvider>
+</body>
+
+
+// 3. Add a path alias to tsconfig.json so `@/solana/...` resolves:
+//
+//    "compilerOptions": {
+//      "paths": {
+//        "@/*": ["./src/*"]
+//      }
+//    }
+//
+//    (Most Next.js 14 templates already have this — verify before adding.)
