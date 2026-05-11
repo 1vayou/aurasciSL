@@ -388,6 +388,7 @@
     const original = label.textContent;
 
     const wrap = document.createElement('div');
+    wrap.className = 'aura-inline-wrap'; // marker so document-capture skips us
     wrap.style.cssText = 'display:flex;gap:6px;align-items:center;';
     const input = document.createElement('input');
     input.type = 'text';
@@ -567,11 +568,21 @@
     document.addEventListener(
       'click',
       function (e) {
+        // CRITICAL: if the click is INSIDE our inline input (the input field
+        // or the submit arrow), let it bubble to the wrap's own handlers.
+        if (e.target.closest('.aura-inline-wrap')) return;
+        // Same for inputs/textareas anywhere
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+
         const btn = e.target.closest(
           '[data-connect="github"], [data-connect="orcid"]'
         );
         if (!btn) return;
         if (btn.dataset.auraConnected === '1') return; // already connected
+        // If we've already shown the inline input, don't show it again
+        if (btn.querySelector('.aura-inline-wrap')) return;
+
         e.preventDefault();
         e.stopPropagation();
 
