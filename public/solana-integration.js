@@ -54,6 +54,20 @@
   function injectWalletButton() {
     if (document.querySelector('.aura-wallet-btn')) return; // already injected
 
+    // SKIP injecting our own button if the page has the original "Login" /
+    // sign-in button — instead we hook into the existing modal's
+    // "Connect wallet" option (see hookExistingLoginButton).
+    const existingLogin = document.querySelector(
+      'button.login, a.login, [data-as="login"], button[data-action="sign-in"]'
+    );
+    const loginText = Array.from(document.querySelectorAll('button, a')).find(
+      (el) => /^Login$|^Sign in$/i.test((el.textContent || '').trim())
+    );
+    if (existingLogin || loginText) {
+      // We'll hook the existing modal's Connect wallet button instead
+      return;
+    }
+
     // Try multiple nav selectors (different pages use different structures)
     let navLinks = document.querySelector('.nav-links')
       || document.querySelector('nav .links')
@@ -344,14 +358,78 @@
     });
   }
 
+  // ── Hook the existing "Connect wallet" option in sign-in modal ─────
+  function hookExistingLoginButton() {
+    // Find the "Connect wallet" button inside the original auth-stub modal
+    document.querySelectorAll('button, a').forEach((el) => {
+      if (el.dataset.auraWalletHooked) return;
+      const txt = (el.textContent || '').trim();
+      if (!/^Connect wallet$/i.test(txt) && el.dataset.as !== 'wallet') return;
+      el.dataset.auraWalletHooked = '1';
+      el.addEventListener(
+        'click',
+        async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          await handleConnectClick();
+          if (walletPubkey) {
+            // Close the modal if it's open
+            const modal = el.closest('.modal, .as-modal, [role="dialog"]');
+            if (modal) {
+              const closeBtn = modal.querySelector('.close, [aria-label="Close"]');
+              if (closeBtn) closeBtn.click();
+              else modal.remove();
+            }
+            // Update the Login button to show wallet address
+            updateLoginButton();
+          }
+        },
+        true
+      );
+    });
+  }
+
+  // Replace the "Login" button text with the wallet address when connected
+  function updateLoginButton() {
+    const candidates = Array.from(document.querySelectorAll('button, a'));
+    candidates.forEach((el) => {
+      const t = (el.textContent || '').trim();
+      if (/^Login$|^Sign in$/i.test(t) || /^[1-9A-HJ-NP-Za-km-z]{4}…[1-9A-HJ-NP-Za-km-z]{4}$/.test(t)) {
+        if (walletPubkey) {
+          el.textContent = shortAddr(walletPubkey);
+          el.title = 'Click to disconnect • ' + walletPubkey;
+          // Override click to disconnect
+          if (!el.dataset.auraLoginHooked) {
+            el.dataset.auraLoginHooked = '1';
+            el.addEventListener('click', function (e) {
+              if (walletPubkey) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                handleConnectClick(); // disconnects
+                setTimeout(updateLoginButton, 50);
+              }
+            }, true);
+          }
+        }
+      }
+    });
+  }
+
   // ── Boot ───────────────────────────────────────────────────────────
   function boot() {
     injectWalletButton();
     hookFundButton();
-    // Listen for dynamic content changes
+    hookExistingLoginButton();
+    if (walletPubkey) updateLoginButton();
+
+    // Listen for dynamic content changes (modal opens, etc.)
     const observer = new MutationObserver(() => {
       injectWalletButton();
       hookFundButton();
+      hookExistingLoginButton();
+      if (walletPubkey) updateLoginButton();
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
