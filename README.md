@@ -285,21 +285,6 @@ live on-chain patronage on the same UI.
 - [Devnet deployment record](docs/DEPLOYMENT.md) — Program ID, instructions, how to verify
 - [How to fork + deploy locally](docs/FORK_GUIDE.md)
 
----
-
-## 👥 Team
-
-AuraSci is built by a small team obsessed with putting science funding on-chain:
-
-- **Eva You** ([@1vayou](https://github.com/1vayou)) — founder, product. Owns the original AuraSci concept and the Solana hackathon submission (Anchor program, on-chain integration, deployment).
-- **Ellie Liu** — UI / UX design. Authored the sci-fi visual system and the user flows shipped at [aurasci.vercel.app](https://aurasci.vercel.app). This hackathon submission is built **on top of Ellie's UI-optimized version**, which itself is built on Eva's original product spec.
-
-The Colosseum submission you're reading is the **Solana-enhanced fork**: Ellie's UI + Eva's product, with a new on-chain Anchor program, Phantom wallet flow, and live devnet patronage layered in.
-
-The pre-Solana reference frontend lives at [github.com/zizizizazaza/aurasci](https://github.com/zizizizazaza/aurasci).
-
----
-
 ## 📄 License
 
 MIT © 2026 AuraSci
