@@ -522,6 +522,17 @@
     btn.style.borderColor = '#1f8a4e';
     btn.style.background = 'rgba(31,138,78,0.06)';
 
+    // Persist the verified identity so Dashboard / other pages can read it
+    try {
+      localStorage.setItem('aurasci.scientist.identityKind', kind);
+      localStorage.setItem('aurasci.scientist.handle', info.handle);
+      localStorage.setItem('aurasci.scientist.handleLine', info.handleLine);
+      if (info.avatar)
+        localStorage.setItem('aurasci.scientist.avatar', info.avatar);
+      if (info.subtitle)
+        localStorage.setItem('aurasci.scientist.subtitle', info.subtitle);
+    } catch (_) {}
+
     const meta = document.createElement('div');
     meta.className = 'b';
     meta.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
@@ -593,6 +604,132 @@
     );
   }
 
+  // ── Onboarding → Dashboard data persistence ──────────────────────────
+  // On the onboarding page, save the user-entered Lab Profile to localStorage
+  // when "Submit for review" is clicked.
+  // On the dashboard, populate name/email/handle/affiliation/bio with
+  // whatever the user actually typed (replacing the hardcoded mock).
+
+  const SK = {
+    name: 'aurasci.scientist.name',
+    email: 'aurasci.scientist.email',
+    affiliation: 'aurasci.scientist.affiliation',
+    bio: 'aurasci.scientist.bio',
+    handle: 'aurasci.scientist.handle', // from verified GitHub/ORCID
+    avatar: 'aurasci.scientist.avatar',
+  };
+
+  function hookOnboardingSubmit() {
+    const submit = document.getElementById('submit-btn');
+    if (!submit || submit.dataset.auraSubmitHooked) return;
+    submit.dataset.auraSubmitHooked = '1';
+    submit.addEventListener(
+      'click',
+      function () {
+        try {
+          const get = (id) => {
+            const el = document.getElementById(id);
+            if (!el) return '';
+            return (el.value || el.textContent || '').trim();
+          };
+          const name = get('f-name');
+          const email = get('f-email');
+          const aff = get('f-aff');
+          const bio = get('f-bio');
+          if (name) localStorage.setItem(SK.name, name);
+          if (email) localStorage.setItem(SK.email, email);
+          if (aff) localStorage.setItem(SK.affiliation, aff);
+          if (bio) localStorage.setItem(SK.bio, bio);
+        } catch (_) {}
+      },
+      true
+    );
+  }
+
+  function hydrateDashboard() {
+    // Only run on pages that look like the scientist dashboard
+    // (has the mock "Dr. Alice Smith" hero or similar)
+    const heroName = document.querySelector('.ph-name');
+    if (!heroName) return;
+
+    const name = localStorage.getItem(SK.name);
+    const email = localStorage.getItem(SK.email);
+    const aff = localStorage.getItem(SK.affiliation);
+    const bio = localStorage.getItem(SK.bio);
+    const handle = localStorage.getItem(SK.handle);
+    const avatar = localStorage.getItem(SK.avatar);
+
+    if (name) heroName.textContent = name;
+    const heroHandle = document.querySelector('.ph-handle');
+    if (heroHandle && handle) heroHandle.textContent = handle;
+    // Replace placeholder avatar circle with real GitHub avatar
+    if (avatar) {
+      const avatarEl = document.querySelector('.ph-avatar, .profile-avatar, [class*="avatar" i]');
+      if (avatarEl) {
+        avatarEl.innerHTML =
+          '<img src="' +
+          avatar +
+          '" alt="" style="width:100%;height:100%;border-radius:inherit;object-fit:cover" />';
+      }
+    }
+
+    // Replace the email / handle / affiliation / bio cells.
+    // The dashboard uses a label+value pattern (k/v divs); find by neighbor text.
+    document.querySelectorAll('.v, [data-k], .field-value').forEach((vEl) => {
+      const kEl = vEl.previousElementSibling || vEl.parentElement?.querySelector('.k, .label, [data-label]');
+      const kText = ((kEl && kEl.textContent) || '').trim().toLowerCase();
+      const currentText = (vEl.textContent || '').trim();
+      if (/email/i.test(kText) && email) vEl.textContent = email;
+      else if (/handle|github|orcid/i.test(kText) && handle) vEl.textContent = handle;
+      else if (/affiliation|university|lab/i.test(kText) && aff) vEl.textContent = aff;
+      // Bio replacement — match if current value contains the canonical mock bio
+      else if (
+        bio &&
+        /Specializing in cellular senescence|cellular senescence and cardiac/.test(
+          currentText
+        )
+      ) {
+        vEl.textContent = bio;
+      }
+    });
+
+    // Also replace any direct mock-string occurrences anywhere in the page
+    if (name || email || aff || handle) {
+      const REPLACEMENTS = [
+        ['Dr. Alice Smith', name],
+        ['alice@stanford.edu', email],
+        ['@dr_alice_smith', handle],
+        ['Stanford University · Bioengineering', aff],
+        ['Stanford University', aff], // fallback shorter form
+      ].filter((r) => r[1]);
+
+      walkText(document.body, REPLACEMENTS);
+    }
+  }
+
+  function walkText(node, replacements) {
+    if (!node) return;
+    if (node.nodeType === 3) {
+      let txt = node.nodeValue;
+      let changed = false;
+      for (const [mock, real] of replacements) {
+        if (real && txt.indexOf(mock) !== -1) {
+          txt = txt.split(mock).join(real);
+          changed = true;
+        }
+      }
+      if (changed) node.nodeValue = txt;
+      return;
+    }
+    if (node.nodeType !== 1) return;
+    // Skip script/style/input
+    const tag = node.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'INPUT' || tag === 'TEXTAREA')
+      return;
+    // Recurse children
+    for (const child of Array.from(node.childNodes)) walkText(child, replacements);
+  }
+
   // ── Boot ─────────────────────────────────────────────────────────────
   function boot() {
     purgeOldInjections(); // remove any old .aura-wallet-btn from previous deploys
@@ -600,12 +737,16 @@
     hookModalWalletOption(); // wire modal's "Connect wallet" to real Phantom (capture)
     hookFundButton(); // wire "Fund this research" to devnet transfer
     hookOnboardingOAuth(); // GitHub/ORCID cards become click-to-connect demo
+    hookOnboardingSubmit(); // Save lab profile form to localStorage on submit
+    hydrateDashboard(); // Replace mock data with real saved values on dashboard
 
     // Re-run on DOM changes (modal opening, etc.)
     const observer = new MutationObserver(function () {
       purgeOldInjections();
       renderAuthButton();
       hookFundButton();
+      hookOnboardingSubmit();
+      hydrateDashboard();
       // hookModalWalletOption + hookOnboardingOAuth are document-level capture,
       // installed once — they don't need re-running.
     });
