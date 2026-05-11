@@ -216,7 +216,7 @@
         <p class="sub">Pick how you'd like to continue. We'll never post on your behalf.</p>
 
         <div class="as-oauth">
-          <button class="as-oauth-btn" data-as="google" disabled title="Demo flow — use email below" style="opacity:0.5;cursor:not-allowed">
+          <button class="as-oauth-btn" data-as="google">
             <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
               <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
@@ -225,7 +225,7 @@
             </svg>
             Google
           </button>
-          <button class="as-oauth-btn" data-as="twitter" disabled title="Demo flow — use email below" style="opacity:0.5;cursor:not-allowed">
+          <button class="as-oauth-btn" data-as="twitter">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>

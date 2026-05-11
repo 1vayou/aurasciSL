@@ -18,6 +18,7 @@
     // System program address — always valid base58, accepts transfers on devnet
     escrowAddress: '11111111111111111111111111111112',
     demoPatronageSol: 0.001,
+    programId: '2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE', // AuraSci Anchor program on devnet
     explorerBase: 'https://explorer.solana.com',
     storageKey: 'aurasci.wallet.addr',
   };
@@ -111,48 +112,61 @@
   }
 
   // ── Hook the modal's "Connect wallet" option to trigger real Phantom ─
+  // Uses document-level capture so we ALWAYS run before auth-stub.js,
+  // regardless of when the modal/button is inserted into the DOM.
+  let walletCaptureInstalled = false;
   function hookModalWalletOption() {
-    document.querySelectorAll('button, a').forEach((el) => {
-      if (el.dataset.auraWalletHooked) return;
-      const txt = (el.textContent || '').trim();
-      const isWalletBtn =
-        /^Connect wallet$/i.test(txt) ||
-        el.dataset.as === 'wallet' ||
-        el.dataset.action === 'connect-wallet';
-      if (!isWalletBtn) return;
-      // Also ignore our own buttons (paranoia)
-      if (el.dataset.auraIsLogin === '1') return;
+    if (walletCaptureInstalled) return;
+    walletCaptureInstalled = true;
 
-      el.dataset.auraWalletHooked = '1';
-      el.addEventListener(
-        'click',
-        async function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          await connectWallet();
-          if (walletPubkey) {
-            // Close the modal
-            const modal = el.closest(
-              '.modal, .as-modal, [role="dialog"], [class*="modal" i]'
+    document.addEventListener(
+      'click',
+      async function (e) {
+        // Find the closest clickable that matches the "Connect wallet" button
+        const el = e.target.closest(
+          'button, a, [role="button"], [data-as="wallet"], .as-oauth-btn'
+        );
+        if (!el) return;
+
+        // Skip our own re-purposed Login button (it has its own handler)
+        if (el.dataset.auraIsLogin === '1') return;
+
+        const txt = (el.textContent || '').trim();
+        const isWalletBtn =
+          /^Connect wallet$/i.test(txt) ||
+          el.dataset.as === 'wallet' ||
+          el.dataset.action === 'connect-wallet';
+        if (!isWalletBtn) return;
+
+        // INTERCEPT: prevent auth-stub.js mock-login from running
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        await connectWallet();
+        if (walletPubkey) {
+          // Close the modal (try multiple common close patterns)
+          const modal = el.closest(
+            '.modal, .as-modal, .as-wrap, [role="dialog"], [class*="modal" i], [class*="overlay" i]'
+          );
+          if (modal) {
+            const closeBtn = modal.querySelector(
+              '.close, [aria-label="Close"], [data-close], button[aria-label*="close" i], .as-close'
             );
-            if (modal) {
-              const closeBtn = modal.querySelector(
-                '.close, [aria-label="Close"], [data-close], button[aria-label*="close" i]'
-              );
-              if (closeBtn) closeBtn.click();
-              else modal.style.display = 'none';
-            }
-            // Also dismiss any backdrop / overlay
-            document
-              .querySelectorAll('.modal-backdrop, .overlay, .as-backdrop')
-              .forEach((b) => (b.style.display = 'none'));
-            renderAuthButton();
+            if (closeBtn) closeBtn.click();
+            else modal.remove();
           }
-        },
-        true // capture so we run BEFORE auth-stub.js's handler
-      );
-    });
+          // Also dismiss any backdrop / overlay
+          document
+            .querySelectorAll(
+              '.modal-backdrop, .overlay, .as-backdrop, .backdrop'
+            )
+            .forEach((b) => b.remove());
+          renderAuthButton();
+        }
+      },
+      true // CAPTURE phase — fires before any listener attached to the button
+    );
   }
 
   // ── Wallet connect / disconnect ──────────────────────────────────────
@@ -362,19 +376,77 @@
     });
   }
 
+  // ── Onboarding: make GitHub / ORCID cards click-to-connect (mock demo) ─
+  let onboardingHooked = false;
+  function hookOnboardingOAuth() {
+    if (onboardingHooked) return;
+    onboardingHooked = true;
+
+    document.addEventListener(
+      'click',
+      function (e) {
+        const btn = e.target.closest('[data-connect="github"], [data-connect="orcid"]');
+        if (!btn) return;
+        e.preventDefault();
+
+        const kind = btn.dataset.connect;
+        const label = btn.querySelector('.b, .oauth-meta .b, [class="b"]');
+        const okMark = btn.querySelector('.ok');
+
+        if (btn.dataset.auraConnected === '1') {
+          // Toggle disconnect
+          btn.dataset.auraConnected = '';
+          btn.style.borderColor = '';
+          btn.style.background = '';
+          if (label) label.textContent = 'click to connect (demo)';
+          if (okMark) okMark.style.opacity = '';
+          // Hide handle line
+          const handle = document.getElementById('conn-handle');
+          if (handle) handle.style.display = 'none';
+        } else {
+          // Mark connected
+          btn.dataset.auraConnected = '1';
+          btn.style.borderColor = '#1f8a4e';
+          btn.style.background = 'rgba(31,138,78,0.06)';
+          if (label) {
+            const handleText =
+              kind === 'github'
+                ? '@your_lab · connected (demo)'
+                : 'ORCID 0000-0002-1825-0097 · connected (demo)';
+            label.textContent = handleText;
+          }
+          if (okMark) okMark.style.opacity = '1';
+          // Show the green "Connected · @handle · ORCID …" line
+          const handle = document.getElementById('conn-handle');
+          if (handle) {
+            handle.style.display = 'flex';
+            handle.style.color = '#1f8a4e';
+            handle.textContent =
+              kind === 'github'
+                ? '✓ Connected · @your_lab (demo) — reviewed by AuraSci Council within 48 h'
+                : '✓ Connected · ORCID 0000-0002-1825-0097 (demo) — reviewed by AuraSci Council within 48 h';
+          }
+        }
+      },
+      true
+    );
+  }
+
   // ── Boot ─────────────────────────────────────────────────────────────
   function boot() {
     purgeOldInjections(); // remove any old .aura-wallet-btn from previous deploys
     renderAuthButton(); // render Login or wallet address
-    hookModalWalletOption(); // wire modal's "Connect wallet" to real Phantom
+    hookModalWalletOption(); // wire modal's "Connect wallet" to real Phantom (capture)
     hookFundButton(); // wire "Fund this research" to devnet transfer
+    hookOnboardingOAuth(); // GitHub/ORCID cards become click-to-connect demo
 
     // Re-run on DOM changes (modal opening, etc.)
     const observer = new MutationObserver(function () {
       purgeOldInjections();
       renderAuthButton();
-      hookModalWalletOption();
       hookFundButton();
+      // hookModalWalletOption + hookOnboardingOAuth are document-level capture,
+      // installed once — they don't need re-running.
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
