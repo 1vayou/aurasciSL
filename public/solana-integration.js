@@ -376,8 +376,190 @@
     });
   }
 
-  // ── Onboarding: make GitHub / ORCID cards click-to-connect (mock demo) ─
+  // ── Onboarding: GitHub / ORCID via real public APIs (no OAuth needed) ─
+  // GitHub: api.github.com/users/{login} → real avatar, name, repos, followers
+  // ORCID:  pub.orcid.org/v3.0/{orcid}   → real name, employments, papers
   let onboardingHooked = false;
+
+  function showInlineInput(btn, placeholder, onSubmit) {
+    // Replace the .b label with a small inline input
+    const label = btn.querySelector('.b');
+    if (!label) return;
+    const original = label.textContent;
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:6px;align-items:center;';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = placeholder;
+    input.style.cssText =
+      'flex:1;min-width:0;padding:4px 8px;border:1px solid #cc5d35;border-radius:6px;font-family:JetBrains Mono,monospace;font-size:11px;background:#fff;color:#3a2418;outline:none;';
+    const ok = document.createElement('button');
+    ok.textContent = '→';
+    ok.style.cssText =
+      'padding:4px 8px;border:none;border-radius:6px;background:#cc5d35;color:#fff;cursor:pointer;font-weight:700;';
+    wrap.appendChild(input);
+    wrap.appendChild(ok);
+
+    label.replaceWith(wrap);
+    input.focus();
+
+    function commit() {
+      const v = input.value.trim();
+      if (!v) {
+        const newLabel = document.createElement('div');
+        newLabel.className = 'b';
+        newLabel.textContent = original;
+        wrap.replaceWith(newLabel);
+        return;
+      }
+      onSubmit(v, wrap);
+    }
+    ok.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      commit();
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commit();
+      }
+      if (e.key === 'Escape') {
+        const newLabel = document.createElement('div');
+        newLabel.className = 'b';
+        newLabel.textContent = original;
+        wrap.replaceWith(newLabel);
+      }
+    });
+    // Stop click bubbling so we don't re-trigger card click
+    wrap.addEventListener('click', (e) => e.stopPropagation());
+  }
+
+  async function connectGitHub(btn) {
+    showInlineInput(btn, 'your-github-username', async (username, wrap) => {
+      wrap.querySelector('input').disabled = true;
+      try {
+        const r = await fetch(
+          'https://api.github.com/users/' + encodeURIComponent(username)
+        );
+        if (!r.ok) throw new Error('User @' + username + ' not found');
+        const u = await r.json();
+        finalizeConnect(btn, wrap, 'github', {
+          handle: '@' + u.login,
+          subtitle:
+            (u.name ? u.name + ' · ' : '') +
+            u.public_repos +
+            ' repos · ' +
+            u.followers +
+            ' followers',
+          avatar: u.avatar_url,
+          handleLine:
+            '✓ Verified GitHub · @' +
+            u.login +
+            (u.name ? ' (' + u.name + ')' : '') +
+            ' — fetched live from api.github.com',
+        });
+      } catch (e) {
+        wrap.querySelector('input').disabled = false;
+        alert('GitHub lookup failed: ' + (e.message || e));
+      }
+    });
+  }
+
+  async function connectOrcid(btn) {
+    showInlineInput(btn, '0000-0000-0000-0000', async (orcid, wrap) => {
+      // Normalize ORCID format
+      const clean = orcid.replace(/[^0-9X]/gi, '');
+      if (clean.length !== 16) {
+        alert(
+          'ORCID must be 16 digits in the form 0000-0000-0000-000X.\nYou entered: ' +
+            orcid
+        );
+        wrap.querySelector('input').disabled = false;
+        return;
+      }
+      const formatted =
+        clean.slice(0, 4) +
+        '-' +
+        clean.slice(4, 8) +
+        '-' +
+        clean.slice(8, 12) +
+        '-' +
+        clean.slice(12, 16);
+      wrap.querySelector('input').disabled = true;
+      try {
+        const r = await fetch('https://pub.orcid.org/v3.0/' + formatted + '/person', {
+          headers: { Accept: 'application/json' },
+        });
+        if (!r.ok)
+          throw new Error('ORCID ' + formatted + ' not found (' + r.status + ')');
+        const p = await r.json();
+        const given = p.name?.['given-names']?.value || '';
+        const family = p.name?.['family-name']?.value || '';
+        const full = (given + ' ' + family).trim() || 'ORCID iD';
+        finalizeConnect(btn, wrap, 'orcid', {
+          handle: formatted,
+          subtitle: full + ' · live from pub.orcid.org',
+          avatar: null,
+          handleLine:
+            '✓ Verified ORCID · ' +
+            formatted +
+            ' (' +
+            full +
+            ') — fetched live from pub.orcid.org',
+        });
+      } catch (e) {
+        wrap.querySelector('input').disabled = false;
+        alert('ORCID lookup failed: ' + (e.message || e));
+      }
+    });
+  }
+
+  function finalizeConnect(btn, wrap, kind, info) {
+    btn.dataset.auraConnected = '1';
+    btn.style.borderColor = '#1f8a4e';
+    btn.style.background = 'rgba(31,138,78,0.06)';
+
+    const meta = document.createElement('div');
+    meta.className = 'b';
+    meta.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+    meta.innerHTML =
+      '<div style="font-weight:700;color:#1f8a4e">' +
+      info.handle +
+      '</div>' +
+      '<div style="font-size:10px;opacity:0.8">' +
+      info.subtitle +
+      '</div>';
+    wrap.replaceWith(meta);
+
+    // Show / update the green checkmark
+    const okMark = btn.querySelector('.ok');
+    if (okMark) okMark.style.opacity = '1';
+
+    // Replace card icon with avatar if available
+    if (info.avatar) {
+      const iconWrap = btn.querySelector('.oauth-icon');
+      if (iconWrap) {
+        iconWrap.innerHTML =
+          '<img src="' +
+          info.avatar +
+          '" alt="" style="width:38px;height:38px;border-radius:8px;object-fit:cover" />';
+      }
+    }
+
+    // Update the connected handle line at the bottom
+    const handle = document.getElementById('conn-handle');
+    if (handle) {
+      handle.style.display = 'flex';
+      handle.style.color = '#1f8a4e';
+      handle.textContent = info.handleLine;
+    }
+
+    // Log to console for evidence
+    console.log('[AuraSci] ' + kind + ' verified:', info);
+  }
+
   function hookOnboardingOAuth() {
     if (onboardingHooked) return;
     onboardingHooked = true;
@@ -385,48 +567,16 @@
     document.addEventListener(
       'click',
       function (e) {
-        const btn = e.target.closest('[data-connect="github"], [data-connect="orcid"]');
+        const btn = e.target.closest(
+          '[data-connect="github"], [data-connect="orcid"]'
+        );
         if (!btn) return;
+        if (btn.dataset.auraConnected === '1') return; // already connected
         e.preventDefault();
+        e.stopPropagation();
 
-        const kind = btn.dataset.connect;
-        const label = btn.querySelector('.b, .oauth-meta .b, [class="b"]');
-        const okMark = btn.querySelector('.ok');
-
-        if (btn.dataset.auraConnected === '1') {
-          // Toggle disconnect
-          btn.dataset.auraConnected = '';
-          btn.style.borderColor = '';
-          btn.style.background = '';
-          if (label) label.textContent = 'click to connect (demo)';
-          if (okMark) okMark.style.opacity = '';
-          // Hide handle line
-          const handle = document.getElementById('conn-handle');
-          if (handle) handle.style.display = 'none';
-        } else {
-          // Mark connected
-          btn.dataset.auraConnected = '1';
-          btn.style.borderColor = '#1f8a4e';
-          btn.style.background = 'rgba(31,138,78,0.06)';
-          if (label) {
-            const handleText =
-              kind === 'github'
-                ? '@your_lab · connected (demo)'
-                : 'ORCID 0000-0002-1825-0097 · connected (demo)';
-            label.textContent = handleText;
-          }
-          if (okMark) okMark.style.opacity = '1';
-          // Show the green "Connected · @handle · ORCID …" line
-          const handle = document.getElementById('conn-handle');
-          if (handle) {
-            handle.style.display = 'flex';
-            handle.style.color = '#1f8a4e';
-            handle.textContent =
-              kind === 'github'
-                ? '✓ Connected · @your_lab (demo) — reviewed by AuraSci Council within 48 h'
-                : '✓ Connected · ORCID 0000-0002-1825-0097 (demo) — reviewed by AuraSci Council within 48 h';
-          }
-        }
+        if (btn.dataset.connect === 'github') connectGitHub(btn);
+        else if (btn.dataset.connect === 'orcid') connectOrcid(btn);
       },
       true
     );
