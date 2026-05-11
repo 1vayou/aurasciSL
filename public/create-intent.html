@@ -315,7 +315,7 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--rust)"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
                 500 H100 GPU hrs
               </div>
-              <div class="b">For training transformer models on biomarker data</div>
+              <div class="b"><span contenteditable="true" style="border-bottom:1px dashed #cc5d35;padding:0 2px;color:#cc5d35">describe what the compute is for</span></div>
             </button>
             <button class="res-card" data-res="lab">
               <div class="a">
@@ -395,7 +395,7 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
           <div class="k">Resource asks · 01</div>
           <div class="review-row">
             <div class="l">GPU</div>
-            <div class="d">500 H100 GPU hrs · model training</div>
+            <div class="d"><span contenteditable="true" style="border-bottom:1px dashed #cc5d35;padding:0 2px;color:#cc5d35">enter GPU hrs needed</span></div>
             <div class="a">included</div>
           </div>
         </div>
@@ -721,6 +721,56 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 
   console.log('[create-intent] v4 loaded · 4-step flow with Setu publish');
 })();
+</script>
+<!--aurasci-bug-fix-tag-enter--><script>
+document.addEventListener('keydown',function(e){
+  var t=e.target;
+  if(e.key==='Enter' && t && t.tagName==='INPUT' && /Add tag/i.test(t.placeholder||'')){
+    e.preventDefault();
+    var v=(t.value||'').trim();
+    if(v==='')return;
+    var s=document.createElement('span');
+    s.textContent='#'+v.replace(/^#/,'');
+    s.style.cssText='display:inline-block;margin-right:6px;margin-bottom:6px;padding:3px 10px;border-radius:14px;background:rgba(204,93,53,0.12);color:#cc5d35;font-size:12px;cursor:pointer';
+    s.onclick=function(){s.remove()};
+    t.parentElement.insertBefore(s,t);
+    t.value='';
+  }
+});
+</script>
+<!--aurasci-bug-fix-milestone--><script>
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button, a, [role=button]');
+  if(!b)return;
+  if(!/Add another milestone/i.test(b.textContent||''))return;
+  e.preventDefault();
+  var existing=document.querySelectorAll('[data-milestone]');
+  var i=existing.length+1;
+  if(i>5){alert('Max 5 milestones');return}
+  var template=existing[0];
+  if(!template)return;
+  var c=template.cloneNode(true);
+  c.setAttribute('data-milestone',String(i));
+  c.querySelectorAll('input, textarea').forEach(function(el){
+    if(el.tagName==='INPUT'&&el.type!=='checkbox')el.value='';
+    if(el.tagName==='TEXTAREA')el.value='';
+  });
+  var label=c.querySelector('.m-label, [data-m-label]');
+  if(label)label.textContent='M'+i;
+  template.parentNode.insertBefore(c,b);
+});
+</script>
+<!--aurasci-bug-fix-inscribing--><script>
+(function(){try{
+  var ticker=localStorage.getItem('aurasci.intent.ticker')||'$DEMO-01';
+  var ttl=localStorage.getItem('aurasci.intent.title')||'';
+  document.querySelectorAll('.ticker,[data-ticker]').forEach(function(el){
+    if(/\$[A-Z]+-\d+/.test(el.textContent))el.textContent=ticker;
+  });
+  document.querySelectorAll('h1, .intent-title, [data-intent-title]').forEach(function(el){
+    if(ttl && /Inscribing/.test(el.textContent))el.textContent='Inscribing '+ticker+' on Setu';
+  });
+}catch(e){}})();
 </script>
 </body>
 </html>

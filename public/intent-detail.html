@@ -386,5 +386,14 @@
 
 <script src="auth-stub.js?v=4"></script>
 <script src="coming-soon.js?v=3"></script>
+<!--aurasci-bug-fix-funding--><script>
+(function(){try{
+  var qs=new URLSearchParams(location.search);
+  var raised=qs.get('raised')||localStorage.getItem('aurasci.intent.raised');
+  var goal=qs.get('goal')||localStorage.getItem('aurasci.intent.goal');
+  if(raised){document.querySelectorAll('[data-raised], .raised-amount').forEach(function(el){el.textContent='$'+Number(raised).toLocaleString();});}
+  if(goal){document.querySelectorAll('[data-goal], .goal-amount').forEach(function(el){el.textContent='$'+Number(goal).toLocaleString();});}
+}catch(e){}})();
+</script>
 </body>
 </html>
