@@ -93,5 +93,7 @@ oracle. Three primitives:
 
 ## Team
 
-- **Eva You** ([@1vayou](https://github.com/1vayou)) — founder, product
-- **AuraSci Build Team** ([@zizizizazaza](https://github.com/zizizizazaza)) — Phase 1 frontend MVP
+- **Eva You** ([@1vayou](https://github.com/1vayou)) — founder, product. Original AuraSci concept; led the Solana hackathon work (Anchor program, on-chain integration, devnet deployment, this submission).
+- **Ellie Liu** — UI / UX. Designed the visual system and authored the UI-optimized version shipped at [aurasci.vercel.app](https://aurasci.vercel.app). This submission is built on top of her UI-optimized version, which itself extends Eva's original product spec.
+
+The reference (pre-Solana) frontend lives at [github.com/zizizizazaza/aurasci](https://github.com/zizizizazaza/aurasci).

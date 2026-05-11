@@ -206,13 +206,14 @@ you've connected the fork.
 2. Choose the active hackathon (Solana Frontier Hackathon at the time of
    writing).
 3. In the project form, paste:
-   - **Repo URL:** `https://github.com/1vayou/aurasci`
-   - **Live demo:** `https://aurasci.vercel.app`
+   - **Repo URL:** `https://github.com/1vayou/aurasciSL`
+   - **Live demo:** `https://aurasci-sl.vercel.app`
    - **Pitch:** copy the One-liner + Problem + Solution from
      `docs/HACKATHON_SUBMISSION.md`.
-   - **Solana program ID:** from step 3.
-   - **Sample tx links:** patronage tx + verify-milestone tx on Solana
-     Explorer.
+   - **Solana program ID:** `2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE`
+     ([devnet explorer](https://explorer.solana.com/address/2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE?cluster=devnet))
+   - **Sample tx links:** any patronage tx from the live demo's
+     Solana Explorer link.
 4. Upload a 2–3 minute demo video walking through the 5-step demo script
    in `README.md`.
 

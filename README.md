@@ -4,14 +4,15 @@
 > screen research, scientists commit cryptographic proofs, and capital is
 > released atomically from a Solana escrow vault.
 
+[![Devnet](https://img.shields.io/badge/Devnet-2J766XS6...wJ2SiE-9945FF?style=for-the-badge&logo=solana)](https://explorer.solana.com/address/2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE?cluster=devnet)
 [![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?style=for-the-badge&logo=solana)](https://explorer.solana.com/?cluster=devnet)
 [![Anchor](https://img.shields.io/badge/Anchor-0.30-0E1117?style=for-the-badge)](https://www.anchor-lang.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Hackathon](https://img.shields.io/badge/Colosseum-Solana%20Frontier-00FF88?style=for-the-badge)](https://arena.colosseum.org/hackathon)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](#license)
 
-🌐 **Live demo:** https://aurasci.vercel.app
-📂 **Reference frontend:** https://github.com/zizizizazaza/aurasci
+🌐 **Live demo:** https://aurasci-sl.vercel.app
+📍 **Deployed program (devnet):** [`2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE`](https://explorer.solana.com/address/2J766XS6NbvebT1sdsMgLtLPf5cL1dmHr5ko5LwJ2SiE?cluster=devnet)
 🏛 **Submitting to:** Colosseum Solana Frontier Hackathon
 
 ---
@@ -269,9 +270,11 @@ We're shipping, not pitching:
 - Server-side AI Verifier that satisfies on-chain signer constraints
 - IPFS pinning for tamper-evident proof storage
 
-We have a working MVP at <https://aurasci.vercel.app> and an active build
-team — we're not starting from a blank repo, we're shipping the on-chain
-half of a product that already has users.
+We're not starting from a blank repo. The reference UI is already live at
+<https://aurasci.vercel.app> (built by [Ellie Liu](#-team)) — this
+submission is the **Solana-enhanced fork** at <https://aurasci-sl.vercel.app>,
+with a real Anchor program deployed to devnet, Phantom wallet flow, and
+live on-chain patronage on the same UI.
 
 ---
 
@@ -279,14 +282,21 @@ half of a product that already has users.
 
 - [Architecture deep-dive](docs/ARCHITECTURE.md)
 - [Hackathon submission summary](docs/HACKATHON_SUBMISSION.md)
-- [How to fork + deploy](docs/FORK_GUIDE.md)
+- [Devnet deployment record](docs/DEPLOYMENT.md) — Program ID, instructions, how to verify
+- [How to fork + deploy locally](docs/FORK_GUIDE.md)
 
 ---
 
 ## 👥 Team
 
-- **Eva You** ([@1vayou](https://github.com/1vayou)) — founder, product
-- **AuraSci Build Team** ([@zizizizazaza](https://github.com/zizizizazaza)) — original frontend MVP
+AuraSci is built by a small team obsessed with putting science funding on-chain:
+
+- **Eva You** ([@1vayou](https://github.com/1vayou)) — founder, product. Owns the original AuraSci concept and the Solana hackathon submission (Anchor program, on-chain integration, deployment).
+- **Ellie Liu** — UI / UX design. Authored the sci-fi visual system and the user flows shipped at [aurasci.vercel.app](https://aurasci.vercel.app). This hackathon submission is built **on top of Ellie's UI-optimized version**, which itself is built on Eva's original product spec.
+
+The Colosseum submission you're reading is the **Solana-enhanced fork**: Ellie's UI + Eva's product, with a new on-chain Anchor program, Phantom wallet flow, and live devnet patronage layered in.
+
+The pre-Solana reference frontend lives at [github.com/zizizizazaza/aurasci](https://github.com/zizizizazaza/aurasci).
 
 ---
 
