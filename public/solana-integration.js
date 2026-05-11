@@ -52,10 +52,23 @@
 
   // ── UI: Connect button / wallet pill ────────────────────────────────
   function injectWalletButton() {
-    // Find nav links container in any page that has one
-    const navLinks = document.querySelector('.nav-links');
-    if (!navLinks) return;
     if (document.querySelector('.aura-wallet-btn')) return; // already injected
+
+    // Try multiple nav selectors (different pages use different structures)
+    let navLinks = document.querySelector('.nav-links')
+      || document.querySelector('nav .links')
+      || document.querySelector('nav > .links')
+      || document.querySelector('nav div.links')
+      || document.querySelector('header nav');
+
+    // If still nothing, attach as a floating button so the user always sees it
+    let floating = false;
+    if (!navLinks) {
+      navLinks = document.createElement('div');
+      navLinks.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9998;';
+      document.body.appendChild(navLinks);
+      floating = true;
+    }
 
     const btn = document.createElement('button');
     btn.className = 'aura-wallet-btn';
