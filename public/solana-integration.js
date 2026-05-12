@@ -96,19 +96,29 @@
     if (pk) {
       // Connected — show wallet address pill
       const short = shortAddr(pk) || pk;
-      if (isStubLogin) {
-        btn.innerHTML = '<span>' + short + '</span>';
-      } else {
-        btn.textContent = short;
+      // IDEMPOTENT: only mutate DOM when the current text really differs.
+      // Otherwise we'd trigger MutationObserver → re-enter this function →
+      // infinite loop → page hangs and clicks stop responding.
+      const currentText = (btn.textContent || '').trim();
+      if (currentText !== short) {
+        if (isStubLogin) {
+          btn.innerHTML = '<span>' + short + '</span>';
+        } else {
+          btn.textContent = short;
+        }
       }
-      btn.title = 'Click to disconnect • ' + pk;
-      btn.style.fontFamily = "'JetBrains Mono', ui-monospace, monospace";
-      btn.dataset.auraConnected = '1';
+      if (btn.title !== 'Click to disconnect • ' + pk) {
+        btn.title = 'Click to disconnect • ' + pk;
+      }
+      if (btn.dataset.auraConnected !== '1') {
+        btn.style.fontFamily = "'JetBrains Mono', ui-monospace, monospace";
+        btn.dataset.auraConnected = '1';
+      }
     } else {
       // Not connected — only restore "Login" if we previously took it over.
       // Don't ever clobber auth-stub.js's freshly-rendered Login button.
       if (btn.dataset.auraConnected === '1') {
-        if (isStubLogin) {
+        if (isStubLogin && (btn.textContent || '').trim() !== 'Login') {
           // Recreate the original auth-stub structure (icon + span)
           btn.innerHTML =
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" ' +
@@ -116,7 +126,7 @@
             'stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 ' +
             '1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" ' +
             'y1="12" x2="3" y2="12"/></svg><span>Login</span>';
-        } else if (!(btn.textContent || '').trim()) {
+        } else if (!isStubLogin && !(btn.textContent || '').trim()) {
           btn.textContent = 'Login';
         }
         btn.title = '';
