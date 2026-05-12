@@ -782,6 +782,41 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
     // slug = lowercased + strip leading $
     var slug = ticker.replace(/^\$/, '').toLowerCase();
 
+    // Snapshot the full intent payload so the market detail page (and any
+    // future surfaces) can render the user's real data instead of mock.
+    try {
+      var intent = {
+        ticker: ticker,
+        slug: slug,
+        title: ($('f-title') && $('f-title').value) || '',
+        hypothesis: ($('f-hyp') && $('f-hyp').value) || '',
+        total: totalAmt(),
+        milestones: Array.prototype.map.call(
+          document.querySelectorAll('.ms-block'),
+          function(b){
+            return {
+              desc: (b.querySelector('input[id$="-desc"]') || {}).value || '',
+              crit: (b.querySelector('input[id$="-crit"]') || {}).value || '',
+              amt:  +((b.querySelector('input[id$="-amt"]')  || {}).value || 0)
+            };
+          }
+        ),
+        resources: Array.prototype.map.call(
+          document.querySelectorAll('.res-card.selected'),
+          function(c){
+            return {
+              a: ((c.querySelector('.a') || {}).textContent || '').trim(),
+              b: ((c.querySelector('.b') || {}).textContent || '').trim()
+            };
+          }
+        ),
+        publishedAt: new Date().toISOString()
+      };
+      localStorage.setItem('aurasci.intent.current', JSON.stringify(intent));
+      localStorage.setItem('aurasci.intent.goal', intent.total);
+      localStorage.setItem('aurasci.intent.raised', 0);
+    } catch(_){}
+
     var setTxt = function(id, val){ var el = $(id); if (el) el.textContent = val; };
     setTxt('setu-h2-ticker', ticker);
     setTxt('setu-done-ticker', ticker);

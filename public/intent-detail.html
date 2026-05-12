@@ -387,14 +387,133 @@
 <script src="auth-stub.js?v=4"></script>
 <script src="coming-soon.js?v=3"></script>
 <!--aurasci-bug-fix-funding--><script>
-(function(){try{
-  var qs=new URLSearchParams(location.search);
-  var raised=qs.get('raised')||localStorage.getItem('aurasci.intent.raised');
-  var goal=qs.get('goal')||localStorage.getItem('aurasci.intent.goal');
-  if(raised){document.querySelectorAll('[data-raised], .raised-amount').forEach(function(el){el.textContent='$'+Number(raised).toLocaleString();});}
-  if(goal){document.querySelectorAll('[data-goal], .goal-amount').forEach(function(el){el.textContent='$'+Number(goal).toLocaleString();});}
-}catch(e){}})();
+(function(){
+  // ── Hydrate from the user's actual published intent (set by create-intent's
+  //    __startSetuPublish into localStorage.aurasci.intent.current). If the
+  //    URL has ?ticker=<slug>, prefer the matching intent. Otherwise fall back
+  //    to the current intent. If neither exists, leave the mock content.
+  function fmtUSD(n){
+    if (!isFinite(n)) n = 0;
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function setTxt(el, val){ if (el && val && el.textContent !== val) el.textContent = val; }
+
+  try {
+    var url   = new URLSearchParams(location.search);
+    var urlS  = url.get('ticker');
+    var data  = null;
+    try { data = JSON.parse(localStorage.getItem('aurasci.intent.current') || 'null'); } catch(_){}
+
+    // Only hydrate if either (a) URL ticker matches saved intent, or (b) no
+    // URL ticker but a saved intent exists.
+    var matches = !urlS || (data && data.slug && urlS.toLowerCase() === data.slug.toLowerCase());
+
+    if (data && matches) {
+      // ── Top ticker line
+      var tickerSpan = qs('.ticker-line span:first-child');
+      if (tickerSpan && data.ticker) setTxt(tickerSpan, data.ticker);
+
+      // ── Title (drop the <em>cardiac fibrosis</em> highlight when replacing
+      //    so the user's real title shows verbatim)
+      var titleEl = qs('.intent-title');
+      if (titleEl && data.title) {
+        titleEl.textContent = data.title;
+      }
+
+      // ── Hypothesis (use as paragraph copy)
+      var hyp = qs('.hyp');
+      if (hyp && data.hypothesis) setTxt(hyp, data.hypothesis);
+
+      // ── Funding goal / committed / progress
+      var total = +data.total || 0;
+      var raisedVal = +(localStorage.getItem('aurasci.intent.raised') || 0);
+      if (total > 0) {
+        var fundAmt = qs('.fund-amt');
+        if (fundAmt) fundAmt.innerHTML = '<span class="cur">$</span>' +
+          Math.round(raisedVal).toLocaleString('en-US');
+        var goalB = qs('.fund-goal b');
+        if (goalB) goalB.textContent = fmtUSD(total);
+        var pct = total > 0 ? Math.min(100, Math.round((raisedVal / total) * 100)) : 0;
+        var pctHl = qs('.fund-pct .hl');
+        if (pctHl) pctHl.textContent = pct + '% complete';
+        var toGo = document.querySelectorAll('.fund-pct span');
+        if (toGo.length >= 2) toGo[toGo.length - 1].textContent =
+          fmtUSD(Math.max(0, total - raisedVal)) + ' to go';
+        var bprog = qs('.bprog span');
+        if (bprog) bprog.style.width = pct + '%';
+      }
+
+      // ── Bottom-right status corner (committed USDC)
+      var brB = qs('.bcorner-br b');
+      if (brB) brB.textContent = fmtUSD(raisedVal) + ' USDC';
+
+      // ── Footer ticker line ($CELL-01 / Gen-seq-094)
+      var blDiv = qs('.bcorner-bl div:last-child');
+      if (blDiv && data.ticker) {
+        blDiv.innerHTML = data.ticker + ' / Gen-seq-094<br/>TCTAGCATGC · trust loop';
+      }
+
+      // ── Resource asks (replace the 3 lx-res cards with user's real picks)
+      if (data.resources && data.resources.length) {
+        var resGrid = qs('.lx-res-grid');
+        if (resGrid) {
+          resGrid.innerHTML = data.resources.map(function(r){
+            // Try to parse a leading number + unit from the heading (e.g.
+            // "500 H100 GPU hrs" → value "500", unit "hrs", rest as detail)
+            var m = (r.a || '').match(/^(\d[\d,]*)\s*([A-Za-z]+)?\s*(.*)$/);
+            var v = m ? m[1] : '·';
+            var u = m && m[2] ? m[2] : '';
+            var k = m && m[3] ? m[3] : r.a;
+            return '<div class="lx-res">' +
+              '<div class="v">' + v + (u ? '<span class="u">' + u + '</span>' : '') + '</div>' +
+              '<div class="k">' + k + (r.b ? ' · ' + r.b : '') + '</div>' +
+            '</div>';
+          }).join('');
+        }
+        var lxMeta = qs('.lx-block .head .meta');
+        if (lxMeta) lxMeta.textContent = data.resources.length + ' categor' +
+          (data.resources.length === 1 ? 'y' : 'ies');
+      }
+    }
+
+    // ── Scientist row — pull from the verified onboarding profile
+    var scName   = localStorage.getItem('aurasci.scientist.name');
+    var scAff    = localStorage.getItem('aurasci.scientist.affiliation');
+    var scAvatar = localStorage.getItem('aurasci.scientist.avatar');
+    if (scName) {
+      var nm = qs('.scientist-row .nm');
+      if (nm) nm.textContent = scName;
+      var avEl = qs('.av-md');
+      if (avEl) {
+        if (scAvatar) {
+          avEl.innerHTML =
+            '<img src="' + scAvatar +
+            '" alt="" style="width:100%;height:100%;border-radius:inherit;object-fit:cover"/>';
+        } else {
+          // Initials from the real name
+          var initials = scName.split(/\s+/).map(function(p){return (p[0]||'').toUpperCase();}).join('').slice(0,2);
+          avEl.textContent = initials || 'YOU';
+        }
+      }
+    }
+    if (scAff) {
+      var afEl = qs('.scientist-row .af');
+      if (afEl) afEl.textContent = scAff + ' · Verified scientist';
+    }
+
+    // ── Back-compat with the older raised/goal URL params (kept for any
+    //    pre-existing deep links into this page).
+    var raised = url.get('raised') || localStorage.getItem('aurasci.intent.raised');
+    var goal   = url.get('goal')   || localStorage.getItem('aurasci.intent.goal');
+    if (raised) document.querySelectorAll('[data-raised], .raised-amount')
+      .forEach(function(el){ el.textContent = fmtUSD(+raised); });
+    if (goal)   document.querySelectorAll('[data-goal], .goal-amount')
+      .forEach(function(el){ el.textContent = fmtUSD(+goal); });
+  } catch(e){
+    console.warn('[intent-detail] hydrate failed:', e);
+  }
+})();
 </script>
-<script src="/solana-integration.js" defer></script>
 </body>
 </html>
