@@ -433,18 +433,7 @@
         true
       );
 
-      // Inline hint badge so user knows it's a real Solana action
-      if (!btn.dataset.auraFundBadged) {
-        const badge = document.createElement('div');
-        badge.style.cssText =
-          'margin-top:8px;font-family:JetBrains Mono, monospace;font-size:10px;color:#1f8a4e;text-align:center';
-        badge.innerHTML =
-          '⚡ Real Solana devnet · ' +
-          CONFIG.demoPatronageSol +
-          ' SOL demo transfer';
-        btn.insertAdjacentElement('afterend', badge);
-        btn.dataset.auraFundBadged = '1';
-      }
+      btn.dataset.auraFundBadged = '1';
     });
   }
 
