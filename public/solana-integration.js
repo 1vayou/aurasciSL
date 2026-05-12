@@ -24,7 +24,12 @@
   };
 
   // ── State ────────────────────────────────────────────────────────────
-  let walletPubkey = localStorage.getItem(CONFIG.storageKey) || null;
+  // Guard against stringified "null" / "undefined" sneaking out of localStorage
+  let walletPubkey = (function () {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    if (!raw || raw === 'null' || raw === 'undefined') return null;
+    return raw;
+  })();
 
   // ── Util ─────────────────────────────────────────────────────────────
   function shortAddr(pk) {
@@ -252,6 +257,12 @@
 
   // ── Real Solana devnet patronage on "Fund this research" ─────────────
   async function sendPatronage(amountSol) {
+    // Re-read in case the wallet was connected after page load
+    if (!walletPubkey || walletPubkey === 'null' || walletPubkey === 'undefined') {
+      const raw = localStorage.getItem(CONFIG.storageKey);
+      if (raw && raw !== 'null' && raw !== 'undefined') walletPubkey = raw;
+    }
+    console.log('[AuraSci] sendPatronage →', { amountSol, walletPubkey });
     if (!walletPubkey) {
       const ok = confirm(
         'You need to connect your Phantom wallet first.\n\n' +
@@ -401,7 +412,23 @@
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-          sendPatronage(CONFIG.demoPatronageSol);
+          // Read the amount the user typed in the funding input. Cap at 0.1
+          // SOL on devnet to avoid airdrop exhaustion; min 0.0001.
+          const input = document.querySelector(
+            '.fund-input input, .binput, input[placeholder*="USDC" i], input[placeholder*="amount" i]'
+          );
+          let amt = CONFIG.demoPatronageSol;
+          if (input && input.value) {
+            const v = parseFloat(input.value);
+            if (isFinite(v) && v > 0) {
+              // The input is labeled USDC but on devnet we send SOL. Treat the
+              // number as SOL with a sane upper bound so it stays in devnet
+              // demo territory.
+              amt = Math.min(Math.max(v, 0.0001), 0.1);
+            }
+          }
+          console.log('[AuraSci] Funding click → sending', amt, 'SOL on devnet');
+          sendPatronage(amt);
         },
         true
       );
