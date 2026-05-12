@@ -343,7 +343,14 @@
     try {
       const connection = new web3.Connection(CONFIG.rpcUrl, 'confirmed');
       const fromPubkey = new web3.PublicKey(walletPubkey);
-      const toPubkey = new web3.PublicKey(CONFIG.escrowAddress);
+      // DEMO ESCROW: round-trip to self. The real Anchor program
+      // (2J766XS6...wJ2SiE) creates a PDA-owned escrow vault for each
+      // intent; integrating that requires publishing the intent on-chain
+      // first. For the hackathon demo we round-trip to the user's own
+      // wallet so that (a) Phantom doesn't flag the dest as malicious,
+      // (b) funds are never lost, and (c) the on-chain tx is real and
+      // viewable on Solana Explorer. Replace with the PDA in Phase 3.
+      const toPubkey = fromPubkey;
       const lamports = Math.round(amountSol * web3.LAMPORTS_PER_SOL);
 
       const tx = new web3.Transaction().add(
