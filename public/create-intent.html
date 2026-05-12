@@ -486,7 +486,7 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
 
         <div class="form-foot">
           <button class="btn-back" data-go="3" id="setu-back" style="visibility:hidden">← Back</button>
-          <a class="btn-next" id="setu-continue" href="asset-detail.html" style="visibility:hidden">Open <span id="setu-continue-ticker">$CELL-01</span> in market <span style="font-family:'JetBrains Mono',monospace">↗</span></a>
+          <a class="btn-next" id="setu-continue" href="intent-detail.html" style="visibility:hidden">Open <span id="setu-continue-ticker">$CELL-01</span> in market <span style="font-family:'JetBrains Mono',monospace">↗</span></a>
         </div>
       </div>
 
@@ -789,6 +789,10 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6;font-family:inhe
     var meta = $('setu-done-meta');
     if (meta) meta.textContent =
       'setu://asset/' + slug + ' · season 094 · 5/5 quorum · ledger by Advaita Labs';
+    // Make the "Open … in market" button carry the slug so the detail page
+    // can read the intent identifier from the URL.
+    var cont = $('setu-continue');
+    if (cont) cont.href = 'intent-detail.html?ticker=' + encodeURIComponent(slug);
     // Patch the "cell-01 entry created" hardcoded log line
     // by substituting into phase 2's lines below.
 
