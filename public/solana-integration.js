@@ -263,17 +263,32 @@
       if (raw && raw !== 'null' && raw !== 'undefined') walletPubkey = raw;
     }
     console.log('[AuraSci] sendPatronage →', { amountSol, walletPubkey });
+
+    // If not connected, trigger Phantom connection directly (skip the modal).
     if (!walletPubkey) {
-      const ok = confirm(
-        'You need to connect your Phantom wallet first.\n\n' +
-          'Click OK to open the sign-in dialog.'
-      );
-      if (ok) {
-        const loginBtn = findLoginButton();
-        if (loginBtn && !walletPubkey) loginBtn.click();
+      const phantom0 = getPhantom();
+      if (!phantom0) {
+        const install = confirm(
+          'Phantom wallet not detected.\n\n' +
+            'AuraSci uses Phantom for Solana sign-in on devnet.\n\n' +
+            'Install Phantom now?'
+        );
+        if (install) window.open('https://phantom.app/', '_blank');
+        return;
       }
-      return;
+      try {
+        const resp = await phantom0.connect();
+        walletPubkey = resp.publicKey.toString();
+        localStorage.setItem(CONFIG.storageKey, walletPubkey);
+        renderAuthButton();
+        console.log('[AuraSci] connected on Fund click →', walletPubkey);
+      } catch (err) {
+        console.error('[AuraSci] user cancelled Phantom connect:', err);
+        return; // user dismissed the wallet popup
+      }
+      if (!walletPubkey) return;
     }
+
     const phantom = getPhantom();
     if (!phantom) {
       alert('Phantom wallet not detected. Install at phantom.app');
