@@ -45,15 +45,34 @@
     return null;
   }
 
-  function loadSolanaWeb3() {
-    if (window.solanaWeb3) return Promise.resolve(window.solanaWeb3);
+  // @solana/web3.js v1's IIFE bundle expects a global `Buffer` in the
+  // browser. Load the `buffer` polyfill first, install it as window.Buffer,
+  // then load web3.js.
+  function loadScript(src) {
     return new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'https://unpkg.com/@solana/web3.js@1.95.4/lib/index.iife.min.js';
-      s.onload = () => resolve(window.solanaWeb3);
-      s.onerror = () => reject(new Error('Failed to load @solana/web3.js'));
+      s.src = src;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Failed to load ' + src));
       document.head.appendChild(s);
     });
+  }
+
+  async function loadSolanaWeb3() {
+    if (window.solanaWeb3) return window.solanaWeb3;
+    // 1. Buffer polyfill (Solana web3.js requires it in the browser)
+    if (typeof window.Buffer === 'undefined') {
+      await loadScript('https://bundle.run/buffer@6.0.3');
+      if (window.buffer && window.buffer.Buffer) {
+        window.Buffer = window.buffer.Buffer;
+      }
+    }
+    // 2. The web3.js IIFE bundle (which uses Buffer internally)
+    await loadScript(
+      'https://unpkg.com/@solana/web3.js@1.95.4/lib/index.iife.min.js'
+    );
+    if (!window.solanaWeb3) throw new Error('@solana/web3.js failed to load');
+    return window.solanaWeb3;
   }
 
   // ── Clean up any old injected buttons from previous deploys ─────────
