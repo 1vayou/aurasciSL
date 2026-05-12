@@ -235,6 +235,13 @@
       const resp = await phantom.connect();
       walletPubkey = resp.publicKey.toString();
       localStorage.setItem(CONFIG.storageKey, walletPubkey);
+      // CRITICAL: also flip auth-stub's auth flag so its capture-phase
+      // listener on .fund-cta stops hijacking the click to open its modal.
+      try {
+        localStorage.setItem('aurasci_auth', '1');
+        localStorage.setItem('aurasci_auth_method', 'wallet');
+        localStorage.setItem('aurasci_handle', walletPubkey);
+      } catch (_) {}
       renderAuthButton();
       logActivity('🟢 Wallet connected · ' + shortAddr(walletPubkey), null);
       return walletPubkey;
@@ -251,6 +258,12 @@
     } catch (_) {}
     walletPubkey = null;
     localStorage.removeItem(CONFIG.storageKey);
+    // Also clear auth-stub's flags so it returns to "logged out" UX
+    try {
+      localStorage.removeItem('aurasci_auth');
+      localStorage.removeItem('aurasci_auth_method');
+      localStorage.removeItem('aurasci_handle');
+    } catch (_) {}
     renderAuthButton();
     logActivity('🔌 Wallet disconnected', null);
   }
@@ -280,6 +293,11 @@
         const resp = await phantom0.connect();
         walletPubkey = resp.publicKey.toString();
         localStorage.setItem(CONFIG.storageKey, walletPubkey);
+        try {
+          localStorage.setItem('aurasci_auth', '1');
+          localStorage.setItem('aurasci_auth_method', 'wallet');
+          localStorage.setItem('aurasci_handle', walletPubkey);
+        } catch (_) {}
         renderAuthButton();
         console.log('[AuraSci] connected on Fund click →', walletPubkey);
       } catch (err) {
@@ -874,6 +892,15 @@
 
   // ── Boot ─────────────────────────────────────────────────────────────
   function boot() {
+    // Backfill: if a wallet was connected in a prior session but auth-stub's
+    // flag isn't set, set it now so auth-stub stops hijacking .fund-cta clicks.
+    if (walletPubkey && localStorage.getItem('aurasci_auth') !== '1') {
+      try {
+        localStorage.setItem('aurasci_auth', '1');
+        localStorage.setItem('aurasci_auth_method', 'wallet');
+        localStorage.setItem('aurasci_handle', walletPubkey);
+      } catch (_) {}
+    }
     purgeOldInjections(); // remove any old .aura-wallet-btn from previous deploys
     renderAuthButton(); // render Login or wallet address
     hookModalWalletOption(); // wire modal's "Connect wallet" to real Phantom (capture)
