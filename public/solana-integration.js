@@ -76,20 +76,49 @@
 
     btn.dataset.auraIsLogin = '1'; // remember it so we can find it again
 
-    if (walletPubkey && typeof walletPubkey === 'string' && walletPubkey.length > 0) {
+    // Guard against bogus localStorage values like the string "null"
+    const pk =
+      walletPubkey &&
+      typeof walletPubkey === 'string' &&
+      walletPubkey !== 'null' &&
+      walletPubkey !== 'undefined' &&
+      walletPubkey.length > 0
+        ? walletPubkey
+        : null;
+
+    // auth-stub.js's .as-nav-login renders text inside a <span> (CSS gives
+    // .as-nav-login > span z-index:1 so it sits above the orange pill that
+    // ::before paints behind it). Using textContent = '...' strips the span
+    // and the bare text node falls behind ::before → blank-looking button.
+    // Always preserve the <span> wrapper.
+    const isStubLogin = btn.classList && btn.classList.contains('as-nav-login');
+
+    if (pk) {
       // Connected — show wallet address pill
-      const short = shortAddr(walletPubkey);
-      // Defensive: if shortAddr returned empty, fall back to full key
-      btn.textContent = short || walletPubkey;
-      btn.title = 'Click to disconnect • ' + walletPubkey;
+      const short = shortAddr(pk) || pk;
+      if (isStubLogin) {
+        btn.innerHTML = '<span>' + short + '</span>';
+      } else {
+        btn.textContent = short;
+      }
+      btn.title = 'Click to disconnect • ' + pk;
       btn.style.fontFamily = "'JetBrains Mono', ui-monospace, monospace";
       btn.dataset.auraConnected = '1';
     } else {
-      // Not connected — always restore the original Login text (even if we
-      // never set auraConnected before, the button might have been cleared
-      // by some other code path)
-      if (!(btn.textContent || '').trim() || btn.dataset.auraConnected === '1') {
-        btn.textContent = 'Login';
+      // Not connected — only restore "Login" if we previously took it over.
+      // Don't ever clobber auth-stub.js's freshly-rendered Login button.
+      if (btn.dataset.auraConnected === '1') {
+        if (isStubLogin) {
+          // Recreate the original auth-stub structure (icon + span)
+          btn.innerHTML =
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" ' +
+            'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" ' +
+            'stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 ' +
+            '1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" ' +
+            'y1="12" x2="3" y2="12"/></svg><span>Login</span>';
+        } else if (!(btn.textContent || '').trim()) {
+          btn.textContent = 'Login';
+        }
         btn.title = '';
         btn.style.fontFamily = '';
         delete btn.dataset.auraConnected;
