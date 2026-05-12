@@ -673,6 +673,10 @@
   // Hydrate the Step-02 review pane (ORCID iD cell + Affiliation cell)
   // with the verified identity and the form values the user actually typed.
   // Runs on submit-click AND on page-load (in case the user navigates back).
+  // IMPORTANT: this writes to DOM textContent. If the MutationObserver also
+  // calls this function, we get an infinite loop (write → mutation → re-call
+  // → write again). We guard against that by only writing when the desired
+  // value differs from what's already in the DOM.
   function hookOnboardingReview() {
     const rOrcid = document.getElementById('r-orcid');
     const rAff = document.getElementById('r-aff');
@@ -691,19 +695,21 @@
         '';
     } catch (_) {}
 
-    if (rOrcid) {
-      if (identityKind === 'orcid' && handle) {
-        // Verified ORCID iD — show the real one
-        rOrcid.textContent = handle;
-      } else if (identityKind === 'github' && handle) {
-        // User verified via GitHub instead. Re-label the cell.
+    const setIfDifferent = (el, val) => {
+      if (!el || !val) return;
+      if (el.textContent !== val) el.textContent = val;
+    };
+
+    if (rOrcid && handle) {
+      if (identityKind === 'github') {
         const kEl = rOrcid.previousElementSibling;
-        if (kEl && kEl.classList.contains('k')) kEl.textContent = 'GitHub';
-        rOrcid.textContent = handle;
+        if (kEl && kEl.classList.contains('k') && kEl.textContent !== 'GitHub')
+          kEl.textContent = 'GitHub';
       }
+      setIfDifferent(rOrcid, handle);
     }
 
-    if (rAff && aff) rAff.textContent = aff;
+    setIfDifferent(rAff, aff);
   }
 
   function hydrateDashboard() {
@@ -802,13 +808,15 @@
     hydrateDashboard(); // Replace mock data with real saved values on dashboard
 
     // Re-run on DOM changes (modal opening, etc.)
+    // CRITICAL: do NOT call hookOnboardingReview / hydrateDashboard here.
+    // They write to textContent, which itself triggers a mutation event and
+    // re-enters this callback → infinite loop → page freeze. They run on
+    // boot() once + on specific user events (submit click, identity verify).
     const observer = new MutationObserver(function () {
       purgeOldInjections();
       renderAuthButton();
       hookFundButton();
       hookOnboardingSubmit();
-      hookOnboardingReview();
-      hydrateDashboard();
       // hookModalWalletOption + hookOnboardingOAuth are document-level capture,
       // installed once — they don't need re-running.
     });
