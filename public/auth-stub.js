@@ -216,7 +216,7 @@
         <p class="sub">Pick how you'd like to continue. We'll never post on your behalf.</p>
 
         <div class="as-oauth">
-          <button class="as-oauth-btn" data-as="google">
+          <button class="as-oauth-btn" data-as="google" title="Sign in with Google email">
             <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
               <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
@@ -225,11 +225,11 @@
             </svg>
             Google
           </button>
-          <button class="as-oauth-btn" data-as="twitter">
+          <button class="as-oauth-btn" data-as="twitter" title="Sign in with X handle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
-            Twitter
+            X
           </button>
         </div>
 
@@ -270,10 +270,26 @@
       doLogin('email', v || 'patron@aurasci.io');
     });
     wrap.querySelector('[data-as="google"]').addEventListener('click', function () {
-      doLogin('google', 'patron@gmail.com');
+      var email = prompt('Sign in with Google\n\nEnter your Gmail address:', '');
+      if (!email) return;
+      email = email.trim();
+      // Basic format check — at least one @ with text on both sides
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('That doesn’t look like a valid email address.');
+        return;
+      }
+      doLogin('google', email);
     });
     wrap.querySelector('[data-as="twitter"]').addEventListener('click', function () {
-      doLogin('twitter', '@patron_xyz');
+      var handle = prompt('Sign in with X\n\nEnter your X (Twitter) handle (e.g. @yourname):', '@');
+      if (!handle) return;
+      handle = handle.trim();
+      if (handle.charAt(0) !== '@') handle = '@' + handle;
+      if (!/^@[A-Za-z0-9_]{1,15}$/.test(handle)) {
+        alert('That doesn’t look like a valid X handle.');
+        return;
+      }
+      doLogin('twitter', handle);
     });
     wrap.querySelector('[data-as="wallet"]').addEventListener('click', function () {
       doLogin('wallet', '0xA1f2…91Be');

@@ -28,7 +28,9 @@
 
   // ── Util ─────────────────────────────────────────────────────────────
   function shortAddr(pk) {
+    if (!pk) return '';
     const s = pk.toString();
+    if (s.length <= 8) return s;
     return s.slice(0, 4) + '…' + s.slice(-4);
   }
 
@@ -74,15 +76,19 @@
 
     btn.dataset.auraIsLogin = '1'; // remember it so we can find it again
 
-    if (walletPubkey) {
+    if (walletPubkey && typeof walletPubkey === 'string' && walletPubkey.length > 0) {
       // Connected — show wallet address pill
-      btn.textContent = shortAddr(walletPubkey);
+      const short = shortAddr(walletPubkey);
+      // Defensive: if shortAddr returned empty, fall back to full key
+      btn.textContent = short || walletPubkey;
       btn.title = 'Click to disconnect • ' + walletPubkey;
       btn.style.fontFamily = "'JetBrains Mono', ui-monospace, monospace";
       btn.dataset.auraConnected = '1';
     } else {
-      // Not connected — show original Login text
-      if (btn.dataset.auraConnected === '1') {
+      // Not connected — always restore the original Login text (even if we
+      // never set auraConnected before, the button might have been cleared
+      // by some other code path)
+      if (!(btn.textContent || '').trim() || btn.dataset.auraConnected === '1') {
         btn.textContent = 'Login';
         btn.title = '';
         btn.style.fontFamily = '';
