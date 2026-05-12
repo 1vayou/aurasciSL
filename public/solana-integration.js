@@ -568,6 +568,27 @@
       handle.textContent = info.handleLine;
     }
 
+    // Update the bottom-right status corner (br-stat / br-handle) with the
+    // real verified identity, replacing "awaiting connect" + "—".
+    const brStat = document.getElementById('br-stat');
+    if (brStat) brStat.textContent = 'authenticated';
+    const brHandle = document.getElementById('br-handle');
+    if (brHandle) brHandle.textContent = info.handle + ' via ' + kind.toUpperCase();
+
+    // If the Step-02 review pane has been hydrated already, refresh it now
+    // so that re-verifying updates the ORCID cell live.
+    try { hookOnboardingReview(); } catch (_) {}
+
+    // Reveal the lab-profile block + enable submit, since the document-level
+    // CAPTURE click handler stopPropagation'd the inline listener that
+    // originally did this work.
+    const profileBlock = document.getElementById('profile-block');
+    if (profileBlock) profileBlock.classList.add('show');
+    const connHandleEl = document.getElementById('conn-handle');
+    if (connHandleEl) connHandleEl.classList.add('show');
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) submitBtn.disabled = false;
+
     // Log to console for evidence
     console.log('[AuraSci] ' + kind + ' verified:', info);
   }
@@ -641,9 +662,48 @@
           if (aff) localStorage.setItem(SK.affiliation, aff);
           if (bio) localStorage.setItem(SK.bio, bio);
         } catch (_) {}
+        // Hydrate the Step-02 review pane with verified ID + form data BEFORE
+        // the inline setStep(2) transitions to it.
+        try { hookOnboardingReview(); } catch (_) {}
       },
       true
     );
+  }
+
+  // Hydrate the Step-02 review pane (ORCID iD cell + Affiliation cell)
+  // with the verified identity and the form values the user actually typed.
+  // Runs on submit-click AND on page-load (in case the user navigates back).
+  function hookOnboardingReview() {
+    const rOrcid = document.getElementById('r-orcid');
+    const rAff = document.getElementById('r-aff');
+    if (!rOrcid && !rAff) return; // Not the onboarding page
+
+    let handle = '';
+    let identityKind = '';
+    let aff = '';
+    try {
+      handle = localStorage.getItem(SK.handle) || '';
+      identityKind = localStorage.getItem('aurasci.scientist.identityKind') || '';
+      aff =
+        localStorage.getItem(SK.affiliation) ||
+        (document.getElementById('f-aff') &&
+          document.getElementById('f-aff').value) ||
+        '';
+    } catch (_) {}
+
+    if (rOrcid) {
+      if (identityKind === 'orcid' && handle) {
+        // Verified ORCID iD — show the real one
+        rOrcid.textContent = handle;
+      } else if (identityKind === 'github' && handle) {
+        // User verified via GitHub instead. Re-label the cell.
+        const kEl = rOrcid.previousElementSibling;
+        if (kEl && kEl.classList.contains('k')) kEl.textContent = 'GitHub';
+        rOrcid.textContent = handle;
+      }
+    }
+
+    if (rAff && aff) rAff.textContent = aff;
   }
 
   function hydrateDashboard() {
@@ -738,6 +798,7 @@
     hookFundButton(); // wire "Fund this research" to devnet transfer
     hookOnboardingOAuth(); // GitHub/ORCID cards become click-to-connect demo
     hookOnboardingSubmit(); // Save lab profile form to localStorage on submit
+    hookOnboardingReview(); // Hydrate Step-02 review pane with verified ID
     hydrateDashboard(); // Replace mock data with real saved values on dashboard
 
     // Re-run on DOM changes (modal opening, etc.)
@@ -746,6 +807,7 @@
       renderAuthButton();
       hookFundButton();
       hookOnboardingSubmit();
+      hookOnboardingReview();
       hydrateDashboard();
       // hookModalWalletOption + hookOnboardingOAuth are document-level capture,
       // installed once — they don't need re-running.
